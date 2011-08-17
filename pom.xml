@@ -22,9 +22,9 @@
 			<version>1.4</version>
 		</dependency>
 		<dependency>
-			<groupId>com.sun.jna</groupId>
+			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>3.0.9</version>
+			<version>3.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>${swt.groupId}</groupId>
