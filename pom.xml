@@ -85,9 +85,28 @@
 				<os>
 					<family>linux</family>
 				</os>
+				<property>
+					<name>sun.arch.data.model</name>
+					<value>32</value>
+				</property>
 			</activation>
 			<properties>
 				<swt.version>3.7-gtk-linux-x86</swt.version>
+			</properties>
+		</profile>
+		<profile>
+			<id>linux64</id>
+			<activation>
+				<os>
+					<family>linux</family>
+				</os>
+				<property>
+					<name>sun.arch.data.model</name>
+					<value>64</value>
+				</property>
+			</activation>
+			<properties>
+				<swt.version>3.7-gtk-linux-x86_64</swt.version>
 			</properties>
 		</profile>
 	</profiles>
