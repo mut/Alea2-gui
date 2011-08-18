@@ -37,23 +37,70 @@
 		<dependency>
 			<groupId>com.googlecode.gstreamer-java</groupId>
 			<artifactId>gstreamer-java</artifactId>
-			<version>1.4</version>
+			<version>1.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.gstreamer-java-swt</groupId>
+			<artifactId>gstreamer-java-swt</artifactId>
+			<version>1.5</version>
 		</dependency>
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
 			<version>3.3.0</version>
 		</dependency>
-   <dependency>
-      <groupId>org.eclipse</groupId>
-      <artifactId>swt</artifactId>
-      <version>3.3.0-v3346</version>
-      <type>pom</type>
-    </dependency>
-
+		<dependency>
+			<groupId>org.eclipse</groupId>
+			<artifactId>swt</artifactId>
+			<version>${swt.version}</version>
+		</dependency>
 	</dependencies>
 
-	
+	<profiles>
+		<profile>
+			<id>mac</id>
+			<activation>
+				<os>
+					<name>mac os x</name>
+				</os>
+			</activation>
+			<properties>
+				<swt.version>swt-3.7-cocoa-macosx</swt.version>
+			</properties>
+		</profile>
+		<profile>
+			<id>windows</id>
+			<activation>
+				<os>
+					<family>windows</family>
+				</os>
+			</activation>
+			<properties>
+				<swt.version>3.7-win32-win32-x86</swt.version>
+			</properties>
+		</profile>
+		<profile>
+			<id>linux</id>
+			<activation>
+				<os>
+					<family>linux</family>
+				</os>
+			</activation>
+			<properties>
+				<swt.version>3.7-gtk-linux-x86</swt.version>
+			</properties>
+		</profile>
+	</profiles>
+
+	<repositories>
+		<repository>
+			<id>local</id>
+			<name>Project Local Repository</name>
+			<url>file://${project.baseUri}/repo/</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>

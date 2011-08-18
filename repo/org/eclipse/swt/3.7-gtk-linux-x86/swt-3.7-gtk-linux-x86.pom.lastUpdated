@@ -1,0 +1,14 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Thu Aug 18 15:24:57 CEST 2011
+file\://${project.baseDir}/.repo/.error=Could not transfer artifact org.eclipse\:swt\:pom\:3.7-gtk-linux-x86 from/to local (file\://${project.baseDir}/.repo/)\: Repository path /.repo does not exist, and cannot be created.
+file\:///home/foo/.git/public/Alea2-gui/target/../../repo/.error=Could not transfer artifact org.eclipse\:swt\:pom\:3.7-gtk-linux-x86 from/to local (file\:///home/foo/.git/public/Alea2-gui/target/../../repo)\: Repository path /home/foo/.git/public/Alea2-gui/target/../../repo cannot be read
+file\://${project.baseDir}/repo/.error=Could not transfer artifact org.eclipse\:swt\:pom\:3.7-gtk-linux-x86 from/to local (file\://${project.baseDir}/repo)\: Repository path /repo does not exist, and cannot be created.
+file\:///home/foo/.git/public/Alea2-gui/target/.repo/.error=
+default-file\://${project.baseDir}/repo/.lastUpdated=1313673897769
+file\:///home/foo/.git/public/Alea2-gui/target/.repo/.lastUpdated=1313673798514
+file\:///home/foo/.git/public/Alea2-gui/target/../../.repo/.error=
+default-file\:///home/foo/.git/public/Alea2-gui/target/../../repo/.lastUpdated=1313673855585
+http\://repo1.maven.org/maven2/.lastUpdated=1313673432388
+http\://repo1.maven.org/maven2/.error=
+default-file\://${project.baseDir}/.repo/.lastUpdated=1313673431575
+file\:///home/foo/.git/public/Alea2-gui/target/../../.repo/.lastUpdated=1313673804534
