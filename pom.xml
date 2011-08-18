@@ -44,54 +44,15 @@
 			<artifactId>jna</artifactId>
 			<version>3.3.0</version>
 		</dependency>
-		<dependency>
-			<groupId>${swt.groupId}</groupId>
-			<artifactId>${swt.artifactId}</artifactId>
-			<version>${swt.version}</version>
-		</dependency>
+   <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>swt</artifactId>
+      <version>3.3.0-v3346</version>
+      <type>pom</type>
+    </dependency>
+
 	</dependencies>
 
-	<profiles>
-		<profile>
-			<id>mac</id>
-			<activation>
-				<os>
-					<name>mac os x</name>
-				</os>
-			</activation>
-			<properties>
-				<swt.groupId>swt</swt.groupId>
-				<swt.artifactId>swt-macosx</swt.artifactId>
-				<swt.version>3.0m7</swt.version>
-			</properties>
-		</profile>
-		<profile>
-			<id>windows</id>
-			<activation>
-				<os>
-					<family>windows</family>
-				</os>
-			</activation>
-			<properties>
-				<swt.groupId>swt</swt.groupId>
-				<swt.artifactId>swt-win32</swt.artifactId>
-				<swt.version>3.0m8</swt.version>
-			</properties>
-		</profile>
-		<profile>
-			<id>linux</id>
-			<activation>
-				<os>
-					<family>linux</family>
-				</os>
-			</activation>
-			<properties>
-				<swt.groupId>swt</swt.groupId>
-				<swt.artifactId>swt-linux-gtk</swt.artifactId>
-				<swt.version>3.0.1</swt.version>
-			</properties>
-		</profile>
-	</profiles>
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
