@@ -1,10 +1,10 @@
-package it.polito.atlas.alea2.platformspecs;
+package it.polito.atlas.alea2.initializer;
 
-public class MacPlatformInizializer extends PlatformInizializer {
+public class MacPlatformInizializer extends Inizializer {
 
 	private static MacPlatformInizializer instance = new MacPlatformInizializer();
 
-	public static PlatformInizializer macPlatformInizializer() {
+	public static Inizializer macPlatformInizializer() {
 		return instance;
 	}
 

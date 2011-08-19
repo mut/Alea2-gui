@@ -1,6 +1,6 @@
-package it.polito.atlas.alea2.platformspecs;
+package it.polito.atlas.alea2.initializer;
 
-public abstract class PlatformInizializer {
+public abstract class Inizializer {
 
 	public void run() {
 		if (isApplicable()) {

@@ -64,9 +64,6 @@ public class OpenAdapter extends SelectionAdapter {
 	 * }); Gst.main(); playbin.setState(State.NULL); }
 	 */
 	public void playSWT(String file) {
-		String args[] = { "", "" };
-		args = Gst.init("Alea2", args);
-
 		Pipeline videos = new Pipeline();
 
 		final PlayBin2 playbin = new PlayBin2("VideoPlayer");
