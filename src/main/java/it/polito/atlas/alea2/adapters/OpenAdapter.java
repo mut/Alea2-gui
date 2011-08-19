@@ -2,7 +2,7 @@ package it.polito.atlas.alea2.adapters;
 
 import static it.polito.atlas.alea2.components.DisplaySingleton.display;
 import static it.polito.atlas.alea2.components.ShellSingleton.shell;
-import static it.polito.atlas.alea2.components.StatusBar.status;
+import static it.polito.atlas.alea2.components.StatusBarSingleton.status;
 import static org.eclipse.swt.SWT.OPEN;
 
 import java.io.File;

@@ -2,7 +2,7 @@ package it.polito.atlas.alea2;
 
 import static it.polito.atlas.alea2.components.ShellSingleton.runShell;
 import static it.polito.atlas.alea2.components.ShellSingleton.shell;
-import static it.polito.atlas.alea2.components.StatusBar.initStatus;
+import static it.polito.atlas.alea2.components.StatusBarSingleton.initStatus;
 import static it.polito.atlas.alea2.menu.MenuBarFactory.createMenu;
 import static it.polito.atlas.alea2.platformspecs.MacPlatformInizializer.macPlatformInizializer;
 import static it.polito.atlas.alea2.toolbar.ToolBarFactory.createToolbar;

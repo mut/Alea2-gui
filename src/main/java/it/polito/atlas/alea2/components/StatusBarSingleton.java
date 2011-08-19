@@ -9,7 +9,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Label;
 
-public class StatusBar {
+public class StatusBarSingleton {
 
 	private static Label instance;
 

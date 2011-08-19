@@ -1,8 +1,9 @@
-package it.polito.atlas.alea2.menu.filemenu;
+package it.polito.atlas.alea2.menu;
 
 import static it.polito.atlas.alea2.components.ShellSingleton.shell;
-import static it.polito.atlas.alea2.menu.filemenu.ExitAdapter.addExitItem;
-import static it.polito.atlas.alea2.menu.filemenu.importmenu.ImportMenuFactory.addImportMenu;
+import static it.polito.atlas.alea2.menu.ImportMenuFactory.addImportMenu;
+import static it.polito.atlas.alea2.menu.MenuItemFactory.createItem;
+import it.polito.atlas.alea2.adapters.QuitAdapter;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Menu;
@@ -19,7 +20,7 @@ public class FileMenuFactory {
 	private static Menu createFileMenu() {
 		Menu fileMenu = new Menu(shell(), SWT.DROP_DOWN);
 		addImportMenu(fileMenu);
-		addExitItem(fileMenu);
+		createItem(fileMenu, "&Exit", new QuitAdapter());
 		return fileMenu;
 	}
 

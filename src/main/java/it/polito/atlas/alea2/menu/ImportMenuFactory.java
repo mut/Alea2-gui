@@ -1,4 +1,4 @@
-package it.polito.atlas.alea2.menu.filemenu.importmenu;
+package it.polito.atlas.alea2.menu;
 
 import static it.polito.atlas.alea2.components.ShellSingleton.shell;
 import static it.polito.atlas.alea2.menu.MenuItemFactory.createItem;

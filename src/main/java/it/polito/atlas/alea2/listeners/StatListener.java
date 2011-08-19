@@ -1,6 +1,6 @@
-package it.polito.atlas.alea2.menu.viewmenu;
+package it.polito.atlas.alea2.listeners;
 
-import static it.polito.atlas.alea2.components.StatusBar.status;
+import static it.polito.atlas.alea2.components.StatusBarSingleton.status;
 import static org.eclipse.swt.SWT.CHECK;
 import static org.eclipse.swt.SWT.Selection;
 import it.polito.atlas.alea2.errors.UninitializedComponentException;
