@@ -1,7 +1,7 @@
 package it.polito.atlas.alea2.initializer;
 
-import static it.polito.atlas.alea2.components.ShellSingleton.shell;
-import static it.polito.atlas.alea2.menu.FileMenuFactory.addFileMenu;
+import static it.polito.atlas.alea2.components.MainWindowShell.shell;
+import static it.polito.atlas.alea2.menu.MainFileMenuFactory.addFileMenu;
 import static it.polito.atlas.alea2.menu.ViewMenuFactory.addViewMenu;
 
 import org.eclipse.swt.SWT;

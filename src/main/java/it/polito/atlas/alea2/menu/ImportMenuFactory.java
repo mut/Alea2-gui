@@ -1,6 +1,6 @@
 package it.polito.atlas.alea2.menu;
 
-import static it.polito.atlas.alea2.components.ShellSingleton.shell;
+import static it.polito.atlas.alea2.components.MainWindowShell.shell;
 import static it.polito.atlas.alea2.menu.MenuItemFactory.createItem;
 import it.polito.atlas.alea2.adapters.BookmarkAdapter;
 import it.polito.atlas.alea2.adapters.MailAdapter;

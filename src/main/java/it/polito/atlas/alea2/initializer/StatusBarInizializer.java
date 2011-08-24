@@ -1,6 +1,6 @@
 package it.polito.atlas.alea2.initializer;
 
-import static it.polito.atlas.alea2.components.StatusBarSingleton.initStatus;
+import static it.polito.atlas.alea2.components.MainWindowStatusBar.initStatus;
 
 public class StatusBarInizializer extends Inizializer {
 

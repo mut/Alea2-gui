@@ -1,6 +1,6 @@
 package it.polito.atlas.alea2.initializer;
 
-import static it.polito.atlas.alea2.components.ShellSingleton.runShell;
+import static it.polito.atlas.alea2.components.MainWindowShell.runShell;
 
 public class ShellRunInizializer extends Inizializer {
 

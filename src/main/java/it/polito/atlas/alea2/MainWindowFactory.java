@@ -6,6 +6,7 @@ import static it.polito.atlas.alea2.initializer.MenuBarInizializer.menuBarInizia
 import static it.polito.atlas.alea2.initializer.ShellRunInizializer.shellRunInizializer;
 import static it.polito.atlas.alea2.initializer.StatusBarInizializer.statusBarInizializer;
 import static it.polito.atlas.alea2.initializer.ToolBarInizializer.toolBarInizializer;
+import it.polito.atlas.alea2.db.DBStorage;
 import it.polito.atlas.alea2.initializer.Inizializer;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 public class MainWindowFactory {
 
 	private static final List<Inizializer> inizializers = new ArrayList<Inizializer>();
+	
 	static {
 		inizializers.add(gstInitializer());
 		inizializers.add(macPlatformInizializer());

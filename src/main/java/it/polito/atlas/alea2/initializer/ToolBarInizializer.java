@@ -1,6 +1,6 @@
 package it.polito.atlas.alea2.initializer;
 
-import static it.polito.atlas.alea2.components.ShellSingleton.shell;
+import static it.polito.atlas.alea2.components.MainWindowShell.shell;
 import static org.eclipse.swt.SWT.PUSH;
 import it.polito.atlas.alea2.adapters.OpenAdapter;
 import it.polito.atlas.alea2.adapters.QuitAdapter;

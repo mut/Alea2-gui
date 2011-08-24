@@ -1,6 +1,6 @@
 package it.polito.atlas.alea2.menu;
 
-import static it.polito.atlas.alea2.components.ShellSingleton.shell;
+import static it.polito.atlas.alea2.components.MainWindowShell.shell;
 import static it.polito.atlas.alea2.listeners.StatListener.addStatItem;
 
 import org.eclipse.swt.SWT;

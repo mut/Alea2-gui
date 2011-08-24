@@ -1,6 +1,6 @@
 package it.polito.atlas.alea2.components;
 
-import static it.polito.atlas.alea2.components.ShellSingleton.shell;
+import static it.polito.atlas.alea2.components.MainWindowShell.shell;
 import it.polito.atlas.alea2.errors.UninitializedComponentException;
 
 import org.eclipse.swt.SWT;
@@ -9,7 +9,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Label;
 
-public class StatusBarSingleton {
+public class MainWindowStatusBar {
 
 	private static Label instance;
 
