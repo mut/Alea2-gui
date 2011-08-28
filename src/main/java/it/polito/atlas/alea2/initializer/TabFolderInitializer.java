@@ -1,8 +1,12 @@
 package it.polito.atlas.alea2.initializer;
 
 import static it.polito.atlas.alea2.components.MainWindowShell.shell;
+import it.polito.atlas.alea2.components.MainWindowStatusBar;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -17,7 +21,7 @@ public class TabFolderInitializer extends Initializer {
 	@Override
 	protected void doRun() {
 		tabFolder = new TabFolder(shell(), SWT.BORDER_SOLID);
-		/*tabFolder.setToolTipText("Test toolTip");
+		tabFolder.setToolTipText("Test toolTip");
 		for (int i=1; i<5; i++) {
 			// create a TabItem
 			TabItem item = new TabItem( tabFolder, SWT.NULL);
@@ -27,7 +31,15 @@ public class TabFolderInitializer extends Initializer {
 			label.setText( "Page " + i);
 			// add a control to the TabItem
 			item.setControl( label );
-		}*/
+		}
+		Point size = getTabFolder().getSize();
+		FormData tabData = new FormData(size.x, size.y);
+		tabData.top = new FormAttachment(ToolBarInitializer.getCoolBar());
+		tabData.bottom = new FormAttachment(MainWindowStatusBar.getStatusBar());
+		tabData.left = new FormAttachment(0);
+		tabData.right = new FormAttachment(100);
+		tabFolder.pack();
+		tabFolder.setLayoutData(tabData);
 	}
 
 	@Override

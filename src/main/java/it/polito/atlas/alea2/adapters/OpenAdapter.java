@@ -2,7 +2,7 @@ package it.polito.atlas.alea2.adapters;
 
 import static it.polito.atlas.alea2.components.DisplaySingleton.display;
 import static it.polito.atlas.alea2.components.MainWindowShell.shell;
-import static it.polito.atlas.alea2.components.MainWindowStatusBar.status;
+import static it.polito.atlas.alea2.components.MainWindowStatusBar.getStatusBar;
 import static org.eclipse.swt.SWT.OPEN;
 
 import java.io.File;
@@ -35,8 +35,8 @@ public class OpenAdapter extends SelectionAdapter {
 
 		String path = dialog.open();
 		if (path != null) {
-			status().setText(path);
-			status().pack();
+			getStatusBar().setText(path);
+			getStatusBar().pack();
 		}
 		// play(path);
 		playSWT(path);

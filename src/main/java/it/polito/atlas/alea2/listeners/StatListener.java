@@ -1,6 +1,6 @@
 package it.polito.atlas.alea2.listeners;
 
-import static it.polito.atlas.alea2.components.MainWindowStatusBar.status;
+import static it.polito.atlas.alea2.components.MainWindowStatusBar.getStatusBar;
 import static org.eclipse.swt.SWT.CHECK;
 import static org.eclipse.swt.SWT.Selection;
 import it.polito.atlas.alea2.errors.UninitializedComponentException;
@@ -16,9 +16,9 @@ public class StatListener implements Listener {
 	@Override
 	public void handleEvent(Event event) {
 		if (instance.getSelection()) {
-			status().setVisible(true);
+			getStatusBar().setVisible(true);
 		} else {
-			status().setVisible(false);
+			getStatusBar().setVisible(false);
 		}
 	}
 

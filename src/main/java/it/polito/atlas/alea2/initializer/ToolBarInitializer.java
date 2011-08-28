@@ -9,7 +9,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.CoolBar;
 import org.eclipse.swt.widgets.CoolItem;
 import org.eclipse.swt.widgets.ToolBar;
@@ -18,10 +19,17 @@ import org.eclipse.swt.widgets.ToolItem;
 public class ToolBarInitializer extends Initializer {
 
 	private static final ToolBarInitializer instance = new ToolBarInitializer();
+	private static CoolBar coolBar;
+	/**
+	 * @return the coolBar
+	 */
+	public static CoolBar getCoolBar() {
+		return coolBar;
+	}
 
 	@Override
 	protected void doRun() {
-		CoolBar coolBar = new CoolBar(shell(), SWT.BORDER_SOLID);
+		coolBar = new CoolBar(shell(), SWT.BORDER_SOLID);
 		ToolBar toolBar = new ToolBar(coolBar, SWT.FLAT);
 		
 		addTool(toolBar, "new.png", null);
@@ -30,7 +38,6 @@ public class ToolBarInitializer extends Initializer {
 		addTool(toolBar, "quit.png", new QuitAdapter());
 		toolBar.pack();
 
-		coolBar.setLayout(new FillLayout());
 		// Add a coolItem to a coolBar
 		CoolItem coolItem = new CoolItem(coolBar, SWT.NULL);
 		// set the control of the coolItem
@@ -42,6 +49,13 @@ public class ToolBarInitializer extends Initializer {
 		Point coolSize = coolItem.computeSize(size.x, size.y);
 		coolItem.setSize(coolSize);
 		coolBar.pack();
+		size = coolBar.getSize();
+		FormData coolData = new FormData(size.x, size.y);
+		coolData.left = new FormAttachment(0);
+		coolData.right = new FormAttachment(100);
+		coolData.top= new FormAttachment(0);
+		//coolData.bottom = new FormAttachment(5);*/
+		coolBar.setLayoutData(coolData);
 	}
 
 	private void addSeparator(ToolBar toolBar) {

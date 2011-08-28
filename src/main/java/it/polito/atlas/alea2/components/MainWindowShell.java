@@ -7,12 +7,14 @@ import java.util.List;
 
 import it.polito.atlas.alea2.Annotation;
 import it.polito.atlas.alea2.Project;
+import it.polito.atlas.alea2.Slice;
 import it.polito.atlas.alea2.Storage;
+import it.polito.atlas.alea2.Track;
 import it.polito.atlas.alea2.db.DBStorage;
 import it.polito.atlas.alea2.initializer.TabFolderInitializer;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -22,6 +24,14 @@ import org.eclipse.swt.widgets.TreeItem;
 public class MainWindowShell {
 
 	private static final Shell instance;
+	private static final FormLayout layout;
+
+	/**
+	 * @return the layout
+	 */
+	public static FormLayout getLayout() {
+		return layout;
+	}
 
 	private static boolean run;
 
@@ -32,6 +42,8 @@ public class MainWindowShell {
 	static {
 		instance = new Shell(display());
 		instance.setText("Hello");
+		layout = new FormLayout();
+		instance.setLayout(layout);
 	}
 
 	/**
@@ -72,20 +84,30 @@ public class MainWindowShell {
 			// add a control to the TabItem
 			item.setControl( label );
 		}*/
-		TabItem item = new TabItem(tabFolder, SWT.NULL);
-		item.setText(p.getName());
+		TabItem tabItem = new TabItem(tabFolder, SWT.NULL);
+		tabItem.setText(p.getName());
 		// create a control
 		Tree tree = new Tree(tabFolder, SWT.SINGLE);
 		for (Annotation a : p.getAnnotations()) {
-			TreeItem treeItem = new TreeItem(tree, SWT.NULL);
-			treeItem.setText(a.getName());
+			TreeItem aItem = new TreeItem(tree, 0);
+			aItem.setText(a.getName());
+			for (Track t : a.getTracks()) {
+				TreeItem tItem = new TreeItem(aItem, 0);
+				tItem.setText(t.getName());
+				for (Slice s : t.getSlices()) {
+					TreeItem sItem = new TreeItem(tItem, 0);
+					sItem.setText(s.getStartTime() + " - " + s.getEndTime());
+				}
+			}
 		}
+		tree.pack();
+		tabItem.setControl(tree);
 	}
 
 	public static void runShell() {
 		if (!run) {
-			instance.setSize(250, 200);
-			instance.setLocation(300, 300);
+			instance.setSize(640, 480);
+			instance.setLocation(SWT.DEFAULT, SWT.DEFAULT);
 
 			instance.open();
 
@@ -97,5 +119,4 @@ public class MainWindowShell {
 			display().dispose();
 		}
 	}
-
 }

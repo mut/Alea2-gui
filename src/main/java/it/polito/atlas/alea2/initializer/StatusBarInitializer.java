@@ -19,5 +19,4 @@ public class StatusBarInitializer extends Initializer {
 	public static Initializer statusBarInizializer() {
 		return instance;
 	}
-
 }
