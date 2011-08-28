@@ -16,7 +16,6 @@ import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.gstreamer.Pipeline;
 import org.gstreamer.State;
 import org.gstreamer.elements.PlayBin2;
 import org.gstreamer.swt.VideoComponent;
@@ -27,9 +26,9 @@ public class OpenAdapter extends SelectionAdapter {
 	public void widgetSelected(SelectionEvent e) {
 		FileDialog dialog = new FileDialog(shell(), OPEN);
 
-		String[] filterNames = new String[] { "All Files (*)", "Java sources" };
+		String[] filterNames = new String[] { "Video Files (*.avi, *.mov, *.mpg)", "All Files (*)"};
 
-		String[] filterExtensions = new String[] { "*", "*.java" };
+		String[] filterExtensions = new String[] { "*.avi; *.mov; *.mpg", "*" };
 
 		dialog.setFilterNames(filterNames);
 		dialog.setFilterExtensions(filterExtensions);

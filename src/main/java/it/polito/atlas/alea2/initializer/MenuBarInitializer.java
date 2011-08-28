@@ -7,9 +7,9 @@ import static it.polito.atlas.alea2.menu.ViewMenuFactory.addViewMenu;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Menu;
 
-public class MenuBarInizializer extends Inizializer {
+public class MenuBarInitializer extends Initializer {
 
-	private static final MenuBarInizializer instance = new MenuBarInizializer();
+	private static final MenuBarInitializer instance = new MenuBarInitializer();
 
 	@Override
 	protected void doRun() {
@@ -28,7 +28,7 @@ public class MenuBarInizializer extends Inizializer {
 		return true;
 	}
 
-	public static Inizializer menuBarInizializer() {
+	public static Initializer menuBarInizializer() {
 		return instance;
 	}
 

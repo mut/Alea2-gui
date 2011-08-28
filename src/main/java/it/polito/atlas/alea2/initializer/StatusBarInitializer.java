@@ -2,9 +2,9 @@ package it.polito.atlas.alea2.initializer;
 
 import static it.polito.atlas.alea2.components.MainWindowStatusBar.initStatus;
 
-public class StatusBarInizializer extends Inizializer {
+public class StatusBarInitializer extends Initializer {
 
-	private static final StatusBarInizializer instance = new StatusBarInizializer();
+	private static final StatusBarInitializer instance = new StatusBarInitializer();
 
 	@Override
 	protected void doRun() {
@@ -16,7 +16,7 @@ public class StatusBarInizializer extends Inizializer {
 		return true;
 	}
 
-	public static Inizializer statusBarInizializer() {
+	public static Initializer statusBarInizializer() {
 		return instance;
 	}
 

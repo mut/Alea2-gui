@@ -2,7 +2,7 @@ package it.polito.atlas.alea2.initializer;
 
 import org.gstreamer.Gst;
 
-public class GstInitializer extends Inizializer {
+public class GstInitializer extends Initializer {
 
 	private static final GstInitializer instance = new GstInitializer();
 
@@ -16,7 +16,7 @@ public class GstInitializer extends Inizializer {
 		return true;
 	}
 
-	public static Inizializer gstInitializer() {
+	public static Initializer gstInitializer() {
 		return instance;
 	}
 

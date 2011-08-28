@@ -1,6 +1,6 @@
 package it.polito.atlas.alea2.initializer;
 
-public abstract class Inizializer {
+public abstract class Initializer {
 
 	public void run() {
 		if (isApplicable()) {
