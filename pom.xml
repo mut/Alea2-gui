@@ -65,7 +65,7 @@
 				</os>
 			</activation>
 			<properties>
-				<swt.version>swt-3.7-cocoa-macosx</swt.version>
+				<swt.version>3.7-cocoa-macosx</swt.version>
 			</properties>
 		</profile>
 		<profile>

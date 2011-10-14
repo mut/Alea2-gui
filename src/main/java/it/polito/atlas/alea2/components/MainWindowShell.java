@@ -10,9 +10,6 @@ import it.polito.atlas.alea2.Project;
 import it.polito.atlas.alea2.Slice;
 import it.polito.atlas.alea2.Storage;
 import it.polito.atlas.alea2.Track;
-import it.polito.atlas.alea2.TrackLIS;
-import it.polito.atlas.alea2.TrackText;
-import it.polito.atlas.alea2.TrackVideo;
 import it.polito.atlas.alea2.db.DBStorage;
 import it.polito.atlas.alea2.initializer.TabFolderInitializer;
 
@@ -23,7 +20,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -107,7 +103,7 @@ public class MainWindowShell {
 	    // check/select listener
 	    tree.addListener(SWT.Selection, new Listener() {
 	        public void handleEvent(Event event) {
-	          String string = event.detail == SWT.CHECK ? "Checked" : "Selected";
+	          String string = event.detail == SWT.CHECK ? "Checked/Unchecked" : "Selected";
 	          System.out.println(event.item + " " + string);
 	        }
 	    });
@@ -162,7 +158,7 @@ public class MainWindowShell {
 			public void handleEvent(Event event) {
 				for (TreeItem i : tree.getSelection()) {
 					TreeItem t = new TreeItem(i, SWT.NULL);
-					t.setText("Tect Track");
+					t.setText("Text Track");
 					i.setExpanded(true);
 				}
 			}	    	

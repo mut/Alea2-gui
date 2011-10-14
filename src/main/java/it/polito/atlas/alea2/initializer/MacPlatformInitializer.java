@@ -14,6 +14,7 @@ public class MacPlatformInitializer extends Initializer {
 		final StringBuilder newJnaLibraryPath = new StringBuilder(jnaLibraryPath != null ? (jnaLibraryPath + ":") : "");
 		newJnaLibraryPath.append("/System/Library/Frameworks/GStreamer.framework/Versions/0.10-" + (com.sun.jna.Platform.is64Bit() ? "x64" : "i386") + "/lib:");
 		System.setProperty("jna.library.path", newJnaLibraryPath.toString());
+		System.out.println("jna.library.path = " + newJnaLibraryPath);
 	}
 
 	@Override

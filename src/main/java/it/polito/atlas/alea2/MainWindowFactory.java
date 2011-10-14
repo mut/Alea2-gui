@@ -17,8 +17,8 @@ public class MainWindowFactory {
 	private static final List<Initializer> inizializers = new ArrayList<Initializer>();
 	
 	static {
-		inizializers.add(gstInitializer());
 		inizializers.add(macPlatformInizializer());
+		inizializers.add(gstInitializer());
 		inizializers.add(statusBarInizializer());
 		inizializers.add(menuBarInizializer());
 		inizializers.add(toolBarInizializer());
