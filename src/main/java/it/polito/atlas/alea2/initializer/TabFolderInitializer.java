@@ -7,9 +7,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Label;
+//import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.swt.widgets.TabItem;
+//import org.eclipse.swt.widgets.TabItem;
 
 
 public class TabFolderInitializer extends Initializer {
@@ -21,8 +21,8 @@ public class TabFolderInitializer extends Initializer {
 	@Override
 	protected void doRun() {
 		tabFolder = new TabFolder(shell(), SWT.BORDER_SOLID);
-		tabFolder.setToolTipText("Test toolTip");
-		for (int i=1; i<5; i++) {
+		tabFolder.setToolTipText("Projects manager");
+		/*for (int i=1; i<5; i++) {
 			// create a TabItem
 			TabItem item = new TabItem( tabFolder, SWT.NULL);
 			item.setText( "TabItem " + i);
@@ -31,7 +31,7 @@ public class TabFolderInitializer extends Initializer {
 			label.setText( "Page " + i);
 			// add a control to the TabItem
 			item.setControl( label );
-		}
+		}*/
 		Point size = getTabFolder().getSize();
 		FormData tabData = new FormData(size.x, size.y);
 		tabData.top = new FormAttachment(ToolBarInitializer.getCoolBar());
@@ -50,7 +50,11 @@ public class TabFolderInitializer extends Initializer {
 	public static Initializer tabFolderInizializer() {
 		return instance;
 	}
-	
+
+	/** Return the main Tab Folder
+	 * 
+	 * @return TabFolder instance
+	 */
 	public static TabFolder getTabFolder() {
 		return tabFolder;
 	}

@@ -47,7 +47,7 @@ public class MainWindowShell {
 
 	static {
 		instance = new Shell(display());
-		instance.setText("Hello");
+		instance.setText("Alea2");
 		layout = new FormLayout();
 		instance.setLayout(layout);
 	}
@@ -62,6 +62,36 @@ public class MainWindowShell {
 	 */
 	public static List<Project> getProjects() {
 		return projects;
+	}
+
+	/**
+	 * @return the current Project
+	 */
+	public static Project getCurrentProject() {
+		TabFolder tf = TabFolderInitializer.getTabFolder();
+		
+		if ((tf == null) || (tf.getItemCount() == 0))
+			return null;
+		if (MainWindowShell.getProjects().size() != tf.getItemCount())  {
+			System.out.println("The number of TabItems and OpenProjects are differents");
+			return null;
+		}
+		return MainWindowShell.getProjects().get(tf.getSelectionIndex());
+	}
+
+	/**
+	 * @return the current Tree
+	 */
+	public static Tree getCurrentTree() {
+		TabFolder tf = TabFolderInitializer.getTabFolder();
+		
+		if ((tf == null) || (tf.getItemCount() == 0))
+			return null;
+		if (MainWindowShell.getProjects().size() != tf.getItemCount())  {
+			System.out.println("The number of TabItems and OpenProjects are differents");
+			return null;
+		}
+		return (Tree) tf.getItem(tf.getSelectionIndex()).getControl();
 	}
 
 	/**
@@ -82,17 +112,7 @@ public class MainWindowShell {
 		if (!projects.add(p))
 			return;
 		TabFolder tabFolder = TabFolderInitializer.getTabFolder();
-		/*tabFolder.setToolTipText("Test toolTip");
-		for (int i=1; i<5; i++) {
-			// create a TabItem
-			TabItem item = new TabItem( tabFolder, SWT.NULL);
-			item.setText( "TabItem " + i);
-			// create a control
-			Label label = new Label( tabFolder, SWT.BORDER_SOLID);
-			label.setText( "Page " + i);
-			// add a control to the TabItem
-			item.setControl( label );
-		}*/
+
 		TabItem tabItem = new TabItem(tabFolder, SWT.NULL);
 		tabItem.setText(p.getName());
 		tabItem.setData(p);
@@ -133,6 +153,7 @@ public class MainWindowShell {
 			@Override
 			public void handleEvent(Event event) {
 				for (TreeItem i : tree.getSelection()) {
+					System.out.print(i.getText());
 					TreeItem t = new TreeItem(i, SWT.NULL);
 					t.setText("LIS Track");
 					i.setExpanded(true);
@@ -164,27 +185,50 @@ public class MainWindowShell {
 			}	    	
 	    });
 	    
+	    final Menu contextMenuAddAnnotation = new Menu(instance, SWT.POP_UP);
+	    item = new MenuItem(contextMenuAddAnnotation, SWT.PUSH);
+	    item.setText("Add Annotation");
+	    item.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				Project p = getCurrentProject();
+				if (p == null)
+					return;
+		    	String newAnnotationName = "New Annotation";
+		    	Annotation a = new Annotation(newAnnotationName);
+				TreeItem aItem = new TreeItem(tree, SWT.NULL);
+				aItem.setText(new String [] {newAnnotationName,"Annotation","0 tracks"});
+				aItem.setData(a);
+				aItem.setExpanded(true);
+				p.addAnnotation(a);
+			}	    	
+	    });
+	    
 		// mouse listener
 		tree.addListener(SWT.MouseDown, new Listener() {
 
 			public void handleEvent(Event event) {
 	          Point point = new Point(event.x, event.y);
+	          System.out.println("Point: " + point.x + "," + point.y);
 	          TreeItem item = tree.getItem(point);
 	          if (item != null) {
-	        	  tree.setSelection(item);
-	        	  System.out.println("Mouse down: " + item);
-	          }
-        	  for (TreeItem i : tree.getSelection()) {
-        		  Object o=i.getData();
-        		  if (o instanceof Annotation) {
-        			  tree.setMenu(contextMenuAnnotation);
-        		  } else if (o instanceof Track) {
-        			  tree.setMenu(contextMenuTrack);
-        		  } else {
-        			  tree.setMenu(null);
-        		  }
-        		  if (o != null)
-        			  System.out.println(i + ": " + o.getClass());
+	        	  System.out.println("Mouse inside item");
+	        	  for (TreeItem i : tree.getSelection()) {
+	        		  Object o=i.getData();
+	        		  if (o instanceof Annotation) {
+	        			  tree.setMenu(contextMenuAnnotation);
+	        		  } else if (o instanceof Track) {
+	        			  tree.setMenu(contextMenuTrack);
+	        		  } else {
+	        			  tree.setMenu(null);
+	        		  }
+	        		  if (o != null)
+	        			  System.out.println(i + ": " + o.getClass());
+		          }
+	          } else {
+	        	  System.out.println("No Item");
+		         // System.out.println("Rect: " + r.x + "," + r.y + "," + r.width + "," + r.height);
+    			  tree.setMenu(contextMenuAddAnnotation);
 	          }
 	        }
 	    });
@@ -203,27 +247,47 @@ public class MainWindowShell {
 	    column3.setText("Info");
 	    column3.setWidth(200);
 	    column3.setMoveable(true);
+	    
+	    addProjectData(tree, p);
 
-	    // fill tree with project data
-	    for (Annotation a : p.getAnnotations()) {
-			TreeItem aItem = new TreeItem(tree, SWT.NONE);
-			aItem.setText(new String[] { a.getName(), "annotation", String.valueOf(a.getTracks().size()) + " tracks"});
-			aItem.setData(a);
-			for (Track t : a.getTracks()) {
-				TreeItem tItem = new TreeItem(aItem, SWT.NONE);
-				tItem.setText(new String[] { t.getName(), t.getTypeString() + " track", String.valueOf(t.getSlices().size()) + " slices"});
-				tItem.setData(t);
-				int i=0;
-				for (Slice s : t.getSlices()) {
-					++i;
-					TreeItem sItem = new TreeItem(tItem, SWT.NONE);
-					sItem.setText(new String[] { "slice " + i, "slice", "duration: " + s.getStartTime() + " - " + s.getEndTime()});
-					sItem.setData(s);
-				}
-			}
-		}
 		tree.pack();
 		tabItem.setControl(tree);
+	}
+	
+    /** fill tree with project data
+     * 
+     * @param p
+     */
+	public static void addProjectData(Tree tree, Project p) {
+	    for (Annotation a : p.getAnnotations()) {
+	    	addAnnotationData(tree, a);
+		}
+	}
+
+	private static void addAnnotationData(Tree tree, Annotation a) {
+		TreeItem aItem = new TreeItem(tree, SWT.NONE);
+		aItem.setText(new String[] { a.getName(), "annotation", String.valueOf(a.getTracks().size()) + " tracks"});
+		aItem.setData(a);
+		for (Track t : a.getTracks()) {
+			addTrackData(aItem, t);
+		}
+	}
+
+	private static void addTrackData(TreeItem aItem, Track t) {
+		TreeItem tItem = new TreeItem(aItem, SWT.NONE);
+		tItem.setText(new String[] { t.getName(), t.getTypeString() + " track", String.valueOf(t.getSlices().size()) + " slices"});
+		tItem.setData(t);
+		int i=0;
+		for (Slice s : t.getSlices()) {
+			addSliceData(tItem, s, i);
+		}
+	}
+
+	private static void addSliceData(TreeItem tItem, Slice s, int i) {
+		++i;
+		TreeItem sItem = new TreeItem(tItem, SWT.NONE);
+		sItem.setText(new String[] { "slice " + i, "slice", "duration: " + s.getStartTime() + " - " + s.getEndTime()});
+		sItem.setData(s);
 	}
 
 	public static void runShell() {
