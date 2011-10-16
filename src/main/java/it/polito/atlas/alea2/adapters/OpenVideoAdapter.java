@@ -1,31 +1,18 @@
 package it.polito.atlas.alea2.adapters;
 
-import static it.polito.atlas.alea2.components.MainWindowShell.shell;
 import static it.polito.atlas.alea2.components.MainWindowStatusBar.getStatusBar;
-import static org.eclipse.swt.SWT.OPEN;
 
+import it.polito.atlas.alea2.components.MainWindowShell;
 import it.polito.atlas.alea2.components.SWTPlayer;
-
-//import java.util.concurrent.TimeUnit;
 
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.FileDialog;
 
 public class OpenVideoAdapter extends SelectionAdapter {
 
 	@Override
 	public void widgetSelected(SelectionEvent e) {
-		FileDialog dialog = new FileDialog(shell(), OPEN);
-
-		String[] filterNames = new String[] { "Video Files (*.avi, *.mov, *.mpg, *.mp4)", "All Files (*)"};
-
-		String[] filterExtensions = new String[] { "*.avi; *.mov; *.mpg; *.mp4", "*" };
-
-		dialog.setFilterNames(filterNames);
-		dialog.setFilterExtensions(filterExtensions);
-
-		String path = dialog.open();
+		String path = MainWindowShell.openVideoShell();
 		if (path == null) {
 			return;
 		}

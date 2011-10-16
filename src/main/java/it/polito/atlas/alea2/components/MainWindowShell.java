@@ -1,6 +1,7 @@
 package it.polito.atlas.alea2.components;
 
 import static it.polito.atlas.alea2.components.DisplaySingleton.display;
+import static org.eclipse.swt.SWT.OPEN;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,9 @@ import it.polito.atlas.alea2.Project;
 import it.polito.atlas.alea2.Slice;
 import it.polito.atlas.alea2.Storage;
 import it.polito.atlas.alea2.Track;
+import it.polito.atlas.alea2.TrackLIS;
+import it.polito.atlas.alea2.TrackText;
+import it.polito.atlas.alea2.TrackVideo;
 import it.polito.atlas.alea2.db.DBStorage;
 import it.polito.atlas.alea2.initializer.TabFolderInitializer;
 
@@ -17,6 +21,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -83,15 +88,15 @@ public class MainWindowShell {
 	 * @return the current Tree
 	 */
 	public static Tree getCurrentTree() {
+		Project p = getCurrentProject();
+		if (p == null)
+			return null;
 		TabFolder tf = TabFolderInitializer.getTabFolder();
-		
-		if ((tf == null) || (tf.getItemCount() == 0))
-			return null;
-		if (MainWindowShell.getProjects().size() != tf.getItemCount())  {
-			System.out.println("The number of TabItems and OpenProjects are differents");
-			return null;
+		Tree t = (Tree) p.link;
+		if (t != (Tree) tf.getItem(tf.getSelectionIndex()).getControl()) {
+			System.out.println("Project link and current Tree mismatch");
 		}
-		return (Tree) tf.getItem(tf.getSelectionIndex()).getControl();
+		return t;
 	}
 
 	/**
@@ -106,21 +111,32 @@ public class MainWindowShell {
 	 */
 	private static Storage storage = new DBStorage();
 
-	public static void openProject(Project p) {
+	/**
+	 * Create a new TabItem and load the Project.
+	 * Returns false if Project is already loaded
+	 * @param p Project to load
+	 */
+	public static boolean openProject(Project p) {
 		if (projects.contains(p))
-			return;
+			return false;
 		if (!projects.add(p))
-			return;
+			return false;
+		
 		TabFolder tabFolder = TabFolderInitializer.getTabFolder();
-
 		TabItem tabItem = new TabItem(tabFolder, SWT.NULL);
 		tabItem.setText(p.getName());
 		tabItem.setData(p);
 		
-		// create the tree
+		// create the tree		
+		final Tree tree = createTree(tabFolder);
+		tabItem.setControl(tree);
+		addProjectData(tree, p);
+		return true;
+	}
+	
+    private static final Tree createTree(TabFolder tabFolder) {
 		final Tree tree = new Tree(tabFolder, SWT.CHECK | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-
-	    // check/select listener
+		// check/select listener
 	    tree.addListener(SWT.Selection, new Listener() {
 	        public void handleEvent(Event event) {
 	          String string = event.detail == SWT.CHECK ? "Checked/Unchecked" : "Selected";
@@ -140,9 +156,21 @@ public class MainWindowShell {
 				//mb.setMessage("Insert the name: ");
 				//mb.open();
 				for (TreeItem i : tree.getSelection()) {
-					TreeItem t = new TreeItem(i, SWT.NULL);
-					t.setText("Slice");
+					Track t;
+					try {
+						t = (Track) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (t == null) {
+						System.out.println("No link betweek TreeItem and Track");
+						return;
+					}
+			    	Slice s = new Slice(0, 0);
+			    	addSliceData(i, s, t.getSlices().size());					
 					i.setExpanded(true);
+					t.addSlice(s);
 				}
 			}	    	
 	    });
@@ -153,10 +181,22 @@ public class MainWindowShell {
 			@Override
 			public void handleEvent(Event event) {
 				for (TreeItem i : tree.getSelection()) {
-					System.out.print(i.getText());
-					TreeItem t = new TreeItem(i, SWT.NULL);
-					t.setText("LIS Track");
+					Annotation a;
+					try {
+						a = (Annotation) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (a == null) {
+						System.out.println("No link betweek TreeItem and Annotation");
+						return;
+					}
+			    	String newTrackName = "New LIS Track";
+			    	TrackLIS t = new TrackLIS(newTrackName);
+			    	addTrackData(i, t);					
 					i.setExpanded(true);
+					a.addTrackLIS(t);
 				}
 			}	    	
 	    });
@@ -165,10 +205,26 @@ public class MainWindowShell {
 	    item.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
+				String path=openVideoShell();
+				if (path==null)
+					return;
 				for (TreeItem i : tree.getSelection()) {
-					TreeItem t = new TreeItem(i, SWT.NULL);
-					t.setText("Video Track");
+					Annotation a;
+					try {
+						a = (Annotation) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (a == null) {
+						System.out.println("No link betweek TreeItem and Annotation");
+						return;
+					}
+			    	String newTrackName = path;
+			    	TrackVideo t = new TrackVideo(newTrackName);
+			    	addTrackData(i, t);					
 					i.setExpanded(true);
+					a.addTrackVideo(t);
 				}
 			}	    	
 	    });
@@ -178,9 +234,22 @@ public class MainWindowShell {
 			@Override
 			public void handleEvent(Event event) {
 				for (TreeItem i : tree.getSelection()) {
-					TreeItem t = new TreeItem(i, SWT.NULL);
-					t.setText("Text Track");
+					Annotation a;
+					try {
+						a = (Annotation) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (a == null) {
+						System.out.println("No link betweek TreeItem and Annotation");
+						return;
+					}
+			    	String newTrackName = "New Text Track";
+			    	TrackText t = new TrackText(newTrackName);
+			    	addTrackData(i, t);
 					i.setExpanded(true);
+					a.addTrackText(t);
 				}
 			}	    	
 	    });
@@ -196,9 +265,7 @@ public class MainWindowShell {
 					return;
 		    	String newAnnotationName = "New Annotation";
 		    	Annotation a = new Annotation(newAnnotationName);
-				TreeItem aItem = new TreeItem(tree, SWT.NULL);
-				aItem.setText(new String [] {newAnnotationName,"Annotation","0 tracks"});
-				aItem.setData(a);
+				TreeItem aItem = addAnnotationData(tree, a);
 				aItem.setExpanded(true);
 				p.addAnnotation(a);
 			}	    	
@@ -247,47 +314,71 @@ public class MainWindowShell {
 	    column3.setText("Info");
 	    column3.setWidth(200);
 	    column3.setMoveable(true);
-	    
-	    addProjectData(tree, p);
-
 		tree.pack();
-		tabItem.setControl(tree);
+		return tree;
 	}
-	
-    /** fill tree with project data
+
+	public static void updateTree(final Tree tree, Project p) {
+		tree.clearAll(true);
+		addProjectData(tree, p);
+	}
+
+	/** fill tree with project data
      * 
      * @param p
      */
 	public static void addProjectData(Tree tree, Project p) {
+		p.link = tree;
 	    for (Annotation a : p.getAnnotations()) {
-	    	addAnnotationData(tree, a);
+	    	TreeItem aItem = addAnnotationData(tree, a);
+	    	if (aItem != null)
+	    		aItem.setExpanded(true);
 		}
 	}
 
-	private static void addAnnotationData(Tree tree, Annotation a) {
+	private static TreeItem addAnnotationData(Tree tree, Annotation a) {
 		TreeItem aItem = new TreeItem(tree, SWT.NONE);
 		aItem.setText(new String[] { a.getName(), "annotation", String.valueOf(a.getTracks().size()) + " tracks"});
 		aItem.setData(a);
 		for (Track t : a.getTracks()) {
 			addTrackData(aItem, t);
 		}
+		aItem.setExpanded(true);
+		return aItem;
 	}
 
-	private static void addTrackData(TreeItem aItem, Track t) {
-		TreeItem tItem = new TreeItem(aItem, SWT.NONE);
+	private static TreeItem addTrackData(TreeItem aItem, Track t) {
+    	TreeItem tItem = new TreeItem(aItem, SWT.NONE);
 		tItem.setText(new String[] { t.getName(), t.getTypeString() + " track", String.valueOf(t.getSlices().size()) + " slices"});
 		tItem.setData(t);
+    	t.link = tItem;
 		int i=0;
 		for (Slice s : t.getSlices()) {
 			addSliceData(tItem, s, i);
 		}
+		tItem.setExpanded(true);
+		return tItem;
 	}
 
-	private static void addSliceData(TreeItem tItem, Slice s, int i) {
+	private static TreeItem addSliceData(TreeItem tItem, Slice s, int i) {
 		++i;
 		TreeItem sItem = new TreeItem(tItem, SWT.NONE);
 		sItem.setText(new String[] { "slice " + i, "slice", "duration: " + s.getStartTime() + " - " + s.getEndTime()});
 		sItem.setData(s);
+		return sItem;
+	}
+
+	public static String openVideoShell() {
+		FileDialog dialog = new FileDialog(shell(), OPEN);
+		
+		String[] filterNames = new String[] { "Video Files (*.avi, *.mov, *.mpg, *.mp4)", "All Files (*)"};
+		String[] filterExtensions = new String[] { "*.avi; *.mov; *.mpg; *.mp4", "*" };
+
+		dialog.setFilterNames(filterNames);
+		dialog.setFilterExtensions(filterExtensions);
+
+		String path = dialog.open();
+		return path;
 	}
 
 	public static void runShell() {
