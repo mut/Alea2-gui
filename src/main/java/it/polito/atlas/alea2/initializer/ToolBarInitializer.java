@@ -6,6 +6,7 @@ import it.polito.atlas.alea2.adapters.NewProjectAdapter;
 import it.polito.atlas.alea2.adapters.OpenProjectAdapter;
 import it.polito.atlas.alea2.adapters.RunAnnotationAdapter;
 import it.polito.atlas.alea2.adapters.QuitAdapter;
+import it.polito.atlas.alea2.adapters.SaveProjectAdapter;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -35,11 +36,12 @@ public class ToolBarInitializer extends Initializer {
 		ToolBar toolBar = new ToolBar(coolBar, SWT.FLAT);
 		
 		addTool(toolBar, "new.png", new NewProjectAdapter(), "Create a new Project");
-		addTool(toolBar, "open.png", new OpenProjectAdapter(), "Open a Project from the current storage");
-		addSeparator(toolBar);
-		addTool(toolBar, "quit.png", new QuitAdapter(), "Exit from Alea");
+		addTool(toolBar, "open.png", new OpenProjectAdapter(), "Open all Projects from the current storage");
+		addTool(toolBar, "save.png", new SaveProjectAdapter(), "Save the current Project in the current storage");
 		addSeparator(toolBar);
 		addTool(toolBar, "run.png", new RunAnnotationAdapter(), "Go in Annotation mode");
+		addSeparator(toolBar);
+		addTool(toolBar, "quit.png", new QuitAdapter(), "Exit from Alea");
 		toolBar.pack();
 
 		// Add a coolItem to a coolBar

@@ -58,6 +58,11 @@ public class MainWindowShell {
 	}
 
 	/**
+	 * Annotation Editor list
+	 */
+	public static List<AnnotationShell> annotationShell = new ArrayList<AnnotationShell>();
+
+	/**
 	 * Open Projects list
 	 */
 	private static List<Project> projects = new ArrayList<Project>();

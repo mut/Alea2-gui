@@ -12,45 +12,45 @@ import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Shell;
-import org.gstreamer.State;
 import org.gstreamer.elements.PlayBin2;
 import org.gstreamer.swt.VideoComponent;
 
 public class SWTPlayer implements it.polito.atlas.alea2.Player {
 	
 	public List <PlayBin2> videos = new ArrayList<PlayBin2>();
+	public List <Shell> shells = new ArrayList<Shell>();
+	long maxDuration=0;
 	
 	public void addVideo(String file) {
+		PlayBin2 playbin;
+		Shell shell;
 
-		PlayBin2 playbin = new PlayBin2("VideoPlayer");
-		
 		final String title = "SWT Video #";
-
-/*
-		videos.addMany(playbin, playbin2);
-		videos.seek(10, TimeUnit.SECONDS);
-*/
+		
 		try {
-			playbin.setInputFile(new File(file));
-		} catch (Exception e) {
-			System.out.print("Can't open file: " + file);
-		}
+			
+			playbin = new PlayBin2("VideoPlayer");
+			shell = new Shell(display());
+			try {
+				playbin.setInputFile(new File(file));
+			} catch (Exception e) {
+				System.out.print("Can't open file: " + file);
+			}
 
-		try {
-			final Shell shell = new Shell(display());
-			videos.add(playbin);
-			shell.setText("SWT Video #" + videos.size() + " - " + file);
-
+			final int index = shells.size();
+			
+			shell.setData(index);
+			shell.setText(title + (index+1) + " - " + file);
 			shell.addShellListener(new ShellListener() {
 
 				@Override
 				public void shellIconified(ShellEvent e) {
-					pause();
+					//pause();
 				}
 
 				@Override
 				public void shellDeiconified(ShellEvent e) {
-					play();
+					//play();
 				}
 
 				@Override
@@ -59,11 +59,15 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 
 				@Override
 				public void shellClosed(ShellEvent e) {
-					int indexVideo=Integer.parseInt(shell.getText().substring(title.length(), title.length()+1))-1;
-					PlayBin2 p = videos.get(indexVideo);
-					p.stop();
-					p.dispose();
-					videos.set(indexVideo, null);
+					//int index=(Integer) ((Shell)e.getSource()).getData();
+					System.out.println("Closing #" + index);
+					PlayBin2 p = videos.get(index);
+					if (p != null) {
+						p.stop();
+						p.dispose();
+						videos.set(index, null);
+					}
+					shells.set(index, null);
 				}
 
 				@Override
@@ -75,38 +79,43 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 			shell.setLayout(new FillLayout());
 
 			final VideoComponent component = new VideoComponent(shell, SWT.NONE);
-			component.getElement().setName("Video #" + videos.size());
+			component.getElement().setName("Video #" + index);
 			component.setKeepAspect(true);
 			// shell.setSize(component.getSize());
 			// component.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
 			// true));//GridData.FILL_BOTH));
 
 			playbin.setVideoSink(component.getElement());
-			// shell.pack();
+			playbin.pause();
+
 			shell.open();
 
-			playbin.setState(State.PAUSED);
-
-			// Element sink = component.getElement();
-
-			// pipe.addMany(src, id, sink);
-			// Element.linkMany(src, id, sink);
-			// pipe.setState(State.PLAYING);
-
 		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return;
 		}
+		shells.add(shell);
+		videos.add(playbin);
 	}
 	
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-
+		for (Shell s : shells)
+			if (s != null)
+				s.close();
 	}
 
 	@Override
 	public long getEndTime() {
-		// TODO Auto-generated method stub
-		return 0;
+		long duration;
+		for (PlayBin2 p : videos)
+			if (p != null) {
+				duration = p.queryDuration(TimeUnit.MILLISECONDS);
+				System.out.println("duration  = " + duration + "ms");
+				if (duration>maxDuration)
+					maxDuration=duration;
+			}
+		return maxDuration;
 	}
 
 	@Override
@@ -134,18 +143,33 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 	}
 	
 	public void play(boolean resync) {
-		boolean first = true;
 		if (resync) {
-			long position=0;
 			for (PlayBin2 p : videos) {
 				if (p != null) {
 					p.pause();
-					if (first) {
-						position=p.queryPosition(TimeUnit.MILLISECONDS);
-					}
+				}
+			}
+
+			for (PlayBin2 p : videos) {
+				if (p != null) {
+					p.pause();
+				}
+			}
+
+			long position=0;
+			for (PlayBin2 p : videos) {
+				if (p != null) {
+					position=p.queryPosition(TimeUnit.MILLISECONDS);
+					System.out.println("Pre:  " + position);
+					break;
 				}
 			}
 			seek(position);
+			for (PlayBin2 p : videos) {
+				if (p != null) {
+					System.out.println("Post: " + p.queryPosition(TimeUnit.MILLISECONDS));
+				}
+			}
 		}
 		for (PlayBin2 p : videos) {
 			if (p != null) {
@@ -155,10 +179,10 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 	}
 
 	@Override
-	public void seek(long arg0) {
+	public void seek(long position) {
 		for (PlayBin2 p : videos) {
 			if (p != null) {
-				p.seek(arg0, TimeUnit.MILLISECONDS);
+				p.seek(position, TimeUnit.MILLISECONDS);
 			}
 		}
 	}
@@ -168,6 +192,12 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 		for (PlayBin2 p : videos)
 			if (p != null)
 				p.stop();
+	}
+
+	public void iconify(boolean b) {
+		for (Shell s : shells)
+			if (s != null)
+				s.setMinimized(b);
 	}
 
 }
