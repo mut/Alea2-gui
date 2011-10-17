@@ -26,14 +26,45 @@ public class AnnotationShell {
 	private SWTPlayer player;
 	private Scale scale;
 	Annotation annotation;
+	static final int TIME_OUT = 125;
+	private boolean updatingScale;
+	private long maxLength=0; 	
+	private String maxLengthString="0"; 	
 
 	public Shell shell() {
 		return shell;
 	}
 
-	public AnnotationShell(Annotation a) {
+	final Runnable updaterRunnable = new Runnable() {
+        public void run() {
+            MainWindowShell.getDiplay().timerExec(TIME_OUT, updaterRunnable);
+			if (updatingScale)
+				return;
+			
+			if (maxLength==0) {
+				maxLength=player.getEndTime();
+				maxLengthString = SWTPlayer.timeString(maxLength);
+				updatingScale = true;
+				scale.setMaximum((int) maxLength / 1000);
+				updatingScale = false;
+			}
+
+			long pos = player.getPosition();
+			shell().setText(SWTPlayer.timeString(pos) + " / " + maxLengthString);
+		  	updatingScale = true;
+		  	scale.setSelection((int) pos / 1000);
+		  	updatingScale = false;
+			return;
+      }
+    };
+
+    public AnnotationShell(Annotation a) {
+		updatingScale = false;
 		annotation = a;
 		player = new SWTPlayer();
+        MainWindowShell.getDiplay().timerExec(TIME_OUT, updaterRunnable);
+
+
 		
 		for (TrackVideo t : a.getTracksVideo()) {
 			System.out.println(t.getName());			
@@ -69,6 +100,7 @@ public class AnnotationShell {
 			
 			@Override
 			public void shellClosed(ShellEvent arg0) {
+				MainWindowShell.getDiplay().timerExec(-1, updaterRunnable);
 				player.dispose();
 			}
 			
@@ -112,10 +144,15 @@ public class AnnotationShell {
 			
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				scale.setMaximum((int) player.getEndTime() / 1000);
+				if (updatingScale)
+					return;
+				updatingScale = true;
+				
 				int perspectiveValue = scale.getSelection();
 				System.out.println(perspectiveValue);
 		        player.seek(perspectiveValue*1000);
+		        
+		        updatingScale = false;
 			}
 			
 			@Override

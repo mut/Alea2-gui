@@ -21,7 +21,35 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 	public List <Shell> shells = new ArrayList<Shell>();
 	long maxDuration=0;
 	
-	public void addVideo(String file) {
+    static public String timeString(long t)
+    {
+		if (t == -1)
+			t=0;
+		long mill = t;
+        long secs = mill / 1000;
+        int mins = (int)(secs / 60);
+
+        mill = mill - (secs * 1000);
+        secs = secs - (mins * 60);
+        if (mins >= 60)
+        {
+            int hours = (int)(mins / 60);
+            mins = mins - (hours * 60);
+
+            return hours + ":" + 
+            	(mins<10?"0"+mins:mins) + ":" + 
+            	(secs<10?"0"+secs:secs) + "." +
+            	(mill<10?"00"+mill:
+            	mill<100?"0"+mill:mill);
+        }
+        return	(mins<10?"0"+mins:mins) + ":" + 
+    			(secs<10?"0"+secs:secs) + "." +
+    			(mill<10?"00"+mill:
+    			mill<100?"0"+mill:mill);
+        //return String.Format("{0}:{1:d2}.{2:d3}", mins, secs, millisecs);
+    }
+
+    public void addVideo(String file) {
 		PlayBin2 playbin;
 		Shell shell;
 
@@ -120,7 +148,11 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 
 	@Override
 	public long getPosition() {
-		// TODO Auto-generated method stub
+		for (PlayBin2 p : videos) {
+			if (p != null) {
+				return p.queryPosition(TimeUnit.MILLISECONDS);
+			}
+		}
 		return 0;
 	}
 

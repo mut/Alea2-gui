@@ -20,6 +20,7 @@ import it.polito.atlas.alea2.initializer.TabFolderInitializer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
@@ -400,5 +401,9 @@ public class MainWindowShell {
 			}
 			display().dispose();
 		}
+	}
+
+	public static Display getDiplay() {
+		return display();
 	}
 }
