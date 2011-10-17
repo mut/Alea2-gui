@@ -35,7 +35,7 @@ public class AnnotationShell {
 		annotation = a;
 		player = new SWTPlayer();
 		
-		for (TrackVideo t :a.getTracksVideo()) {
+		for (TrackVideo t : a.getTracksVideo()) {
 			System.out.println(t.getName());			
 			player.addVideo(t.getName());
 		}
@@ -113,8 +113,8 @@ public class AnnotationShell {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				scale.setMaximum((int) player.getEndTime() / 1000);
-		        int perspectiveValue = scale.getMaximum() - scale.getSelection() + scale.getMinimum();
-		        System.out.println(perspectiveValue);
+				int perspectiveValue = scale.getSelection();
+				System.out.println(perspectiveValue);
 		        player.seek(perspectiveValue*1000);
 			}
 			

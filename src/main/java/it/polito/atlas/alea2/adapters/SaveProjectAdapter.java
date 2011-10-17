@@ -15,6 +15,8 @@ public class SaveProjectAdapter extends SelectionAdapter {
 	public void widgetSelected(SelectionEvent e) {
 		Storage st=MainWindowShell.getStorage();
 		Project p=MainWindowShell.getCurrentProject();
+		if (p==null)
+			return;
 		if (st.containsProject(p.getName())) {
 			MessageBox mb = new MessageBox(MainWindowShell.shell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
 			mb.setText("Save on Storage");
