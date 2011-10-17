@@ -18,6 +18,8 @@ import it.polito.atlas.alea2.db.DBStorage;
 import it.polito.atlas.alea2.initializer.TabFolderInitializer;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Display;
@@ -305,6 +307,37 @@ public class MainWindowShell {
 	          }
 	        }
 	    });
+		
+		tree.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				TreeItem item = (TreeItem) arg0.item;
+				TreeItem oldItem = item;
+				Object o = item.getData();
+
+				while (true) {
+					if (o instanceof Annotation) {
+						getCurrentProject().setCurrentAnnotation((Annotation) o);
+						return;
+					} else {
+						oldItem=item;
+						item=item.getParentItem();
+						o=item.getData();
+						if ((item == null) || (item == oldItem))
+							return;
+						if (o == null)
+							return;
+					}
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 
 	    // columns
 		tree.setHeaderVisible(true);
