@@ -393,14 +393,13 @@ public class MainWindowShell {
     	t.link = tItem;
 		int i=0;
 		for (Slice s : t.getSlices()) {
-			addSliceData(tItem, s, i);
+			addSliceData(tItem, s, ++i);
 		}
 		tItem.setExpanded(true);
 		return tItem;
 	}
 
 	private static TreeItem addSliceData(TreeItem tItem, Slice s, int i) {
-		++i;
 		TreeItem sItem = new TreeItem(tItem, SWT.NONE);
 		sItem.setText(new String[] { "slice " + i, "slice", "duration: " + s.getStartTime() + " - " + s.getEndTime()});
 		sItem.setData(s);
@@ -439,10 +438,17 @@ public class MainWindowShell {
 
 	private static void dispose() {
 		for (AnnotationShell a : MainWindowShell.annotationShells)
-			a.shell().close();
+			if (a!=null) 
+				if (a.shell()!=null)
+					a.shell().close();
 	}
 
 	public static Display getDiplay() {
 		return display();
+	}
+
+	// verificare il punto in cui si deve chiamare
+	public static void removeAnnotationShells(AnnotationShell annotationShell) {
+		annotationShells.remove(annotationShell);
 	}
 }

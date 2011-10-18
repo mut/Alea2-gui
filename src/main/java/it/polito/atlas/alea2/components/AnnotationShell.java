@@ -1,36 +1,60 @@
 package it.polito.atlas.alea2.components;
 
 import static it.polito.atlas.alea2.components.DisplaySingleton.display;
-
-import java.util.concurrent.TimeUnit;
+import static org.eclipse.swt.SWT.PUSH;
 
 import it.polito.atlas.alea2.Annotation;
+import it.polito.atlas.alea2.Slice;
 import it.polito.atlas.alea2.Track;
 import it.polito.atlas.alea2.TrackVideo;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.CoolBar;
+import org.eclipse.swt.widgets.CoolItem;
+import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 public class AnnotationShell {
 	private Shell shell;
 	private SWTPlayer player;
-	private Scale scale;
 	private Annotation annotation;
+
 	static final int TIME_OUT = 125;
 	private boolean updatingScale;
 	private long maxLength=0; 	
-	private String maxLengthString="0"; 	
+	private String maxLengthString="0"; 
+	
+	// common layout
+	private Scale scale;
+	
+	// new layout
+	Tree tree;
+	Canvas panel;
+	CoolBar playCommands;
+		
 
 	public Shell shell() {
 		return shell;
@@ -61,14 +85,15 @@ public class AnnotationShell {
 			return;
       }
     };
+	private CoolBar coolBar;
+	protected boolean mouseDown=false;
+	protected int xMouseDown=-1;
+	protected int xMouse;
 
     public AnnotationShell(Annotation a) {
 		updatingScale = false;
 		annotation = a;
 		player = new SWTPlayer();
-        MainWindowShell.getDiplay().timerExec(TIME_OUT, updaterRunnable);
-
-
 		
 		for (TrackVideo t : a.getTracksVideo()) {
 			System.out.println(t.getName());			
@@ -77,7 +102,7 @@ public class AnnotationShell {
 		
 		shell = new Shell(display());
 		shell.setText("Annotation Editor");
-		shell.setSize(640, 240);
+		shell.setSize(640, 480);
 		shell.setLocation(SWT.DEFAULT, SWT.DEFAULT);
 		shell.addShellListener(new ShellListener() {
 			
@@ -106,6 +131,7 @@ public class AnnotationShell {
 			public void shellClosed(ShellEvent arg0) {
 				MainWindowShell.getDiplay().timerExec(-1, updaterRunnable);
 				player.dispose();
+				shell=null;
 			}
 			
 			@Override
@@ -114,49 +140,29 @@ public class AnnotationShell {
 				
 			}
 		});
-		shell.setLayout(new FormLayout());
 		
+		setLayout();
+		annotationUpdate();
+        MainWindowShell.getDiplay().timerExec(TIME_OUT, updaterRunnable);
+		shell().open();
+	}
+    
+    private void setLayout() {
+		shell().setLayout(new FormLayout());
 		Point size;
-		FormData formData;
 		
-		// Labels
-		Label label=null;
-		Label oldLabel=null;
-		for (Track t : annotation.getTracks()) {
-			oldLabel=label;
-			label = new Label(shell(), SWT.BORDER);
-			label.setText("Track: " + t.getTypeString() + " " + t.getName());
-			label.pack();
-			size = label.getSize();
-			formData = new FormData(size.x, size.y);
-			formData.left = new FormAttachment(0);
-			formData.right = new FormAttachment(100);
-			if (oldLabel==null) {
-				formData.top = new FormAttachment(0);
-			} else {
-				formData.top = new FormAttachment(oldLabel);
-			}
-			label.setLayoutData(formData);
-		}
-		
-		// Buttons size
-		size = label.getSize();
-		size.y = 50;
-
-		// Button Play
-		Button ok = new Button(shell(), SWT.PUSH);
-        ok.setText("Play / Resync");
-		formData = new FormData(size.x, size.y);
-		formData.left = new FormAttachment(50);
-		formData.right = new FormAttachment(100);
-		//formData.top = new FormAttachment(scale);
+		final Sash vSash = new Sash(shell(), SWT.BORDER | SWT.VERTICAL);
+		FormData formData = new FormData();
+		formData.top = new FormAttachment(0);
 		formData.bottom = new FormAttachment(100);
-		ok.setLayoutData(formData);
-		ok.addSelectionListener(new SelectionListener() {
+		formData.left = new FormAttachment(30);
+		vSash.setLayoutData(formData);	    
+		vSash.addSelectionListener(new SelectionListener() {
 			
 			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				player.play();
+			public void widgetSelected(SelectionEvent event) {
+		        ((FormData) vSash.getLayoutData()).left = new FormAttachment(0, event.x);
+		        vSash.getParent().layout();
 			}
 			
 			@Override
@@ -165,44 +171,18 @@ public class AnnotationShell {
 				
 			}
 		});
-		
-		// Button Pause
-		Button cancel = new Button(shell(), SWT.PUSH);
-		cancel.setText("Pause");
-		formData = new FormData(size.x, size.y);
-		formData.left = new FormAttachment(0);
-		formData.right = new FormAttachment(50);
-		//formData.top = new FormAttachment(scale);
-		formData.bottom = new FormAttachment(100);
-		cancel.setLayoutData(formData);
-		cancel.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				player.pause();
-				System.out.println(player.videos.get(0).queryDuration(TimeUnit.MILLISECONDS));
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-		});		
-
+    
 		// Scale
 		scale = new Scale(shell(), SWT.BORDER);
 		scale.pack();
-		long max=player.getEndTime();
-		scale.setMaximum ((int) max);
-		System.out.println(max);
-		
+		//long max=player.getEndTime();
+		//scale.setMaximum ((int) max);
 		size = scale.getSize();
 		formData = new FormData(size.x, size.y);
-		formData.left = new FormAttachment(0);
+		formData.left = new FormAttachment(vSash);
 		formData.right = new FormAttachment(100);
 		//formData.top = new FormAttachment(label);
-		formData.bottom = new FormAttachment(ok);
+		formData.bottom = new FormAttachment(100);
 		scale.setLayoutData(formData);
 		scale.addSelectionListener( new SelectionListener() {
 			
@@ -226,13 +206,201 @@ public class AnnotationShell {
 			}
 		});
 
-		shell.open();
+		coolBar = new CoolBar(shell(), SWT.BORDER_SOLID);
+		ToolBar toolBar = new ToolBar(coolBar, SWT.FLAT);
+		addTool(toolBar, "first.png", new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				player.seek(0);
+			}
+		}, "Go Start");
+		addTool(toolBar, "play.png", new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				player.play(false);
+			}
+		}, "Play");
+		addTool(toolBar, "pause.png", new SelectionAdapter() {			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				player.pause();
+			}
+		}, "Pause");
+		addTool(toolBar, "last.png", new SelectionAdapter() {			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				player.seek(player.maxDuration);
+			}
+		}, "Go End");
+		addSeparator(toolBar);
+		addTool(toolBar, "resync.png", new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				player.play(true);
+			}
+		}, "Play Resync");
+		toolBar.pack();
+		// Add a coolItem to a coolBar
+		CoolItem coolItem = new CoolItem(coolBar, SWT.NULL);
+		// set the control of the coolItem
+		coolItem.setControl(toolBar);
+		size = toolBar.computeSize( SWT.DEFAULT, SWT.DEFAULT); 
+		Point coolSize = coolItem.computeSize(size.x, size.y);
+		coolItem.setSize(coolSize);
+		coolBar.pack();
+		size = coolBar.getSize();
+		FormData coolData = new FormData(size.x, size.y);
+		coolData.left = new FormAttachment(0);
+		coolData.right = new FormAttachment(vSash);
+		//coolData.top= new FormAttachment(tree);
+		coolData.bottom = new FormAttachment(100);
+		coolBar.setLayoutData(coolData);
+
+		// tree
+		tree = new Tree(shell(), SWT.CHECK | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+	    formData = new FormData();
+	    formData.top = new FormAttachment(0);
+	    formData.bottom = new FormAttachment(coolBar);
+	    formData.left = new FormAttachment(0);
+	    formData.right = new FormAttachment(vSash);
+	    tree.setLayoutData(formData);
+		
+	    // Create a canvas
+	    panel = new Canvas(shell(), SWT.NONE);
+
+	    formData = new FormData();
+	    formData.top = new FormAttachment(0);
+	    formData.bottom = new FormAttachment(scale);
+	    formData.left = new FormAttachment(vSash);
+	    formData.right = new FormAttachment(100);
+	    panel.setLayoutData(formData);
+	    
+	    panel.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseUp(MouseEvent arg0) {
+				//setSlice
+				mouseDown=false;
+				panel.redraw();
+			}
+			
+			@Override
+			public void mouseDown(MouseEvent arg0) {
+				mouseDown=true;
+				xMouseDown=arg0.x;
+	    		Rectangle clientArea = panel.getClientArea();
+				player.seek(xMouseDown*player.maxDuration/clientArea.width);
+				panel.redraw();
+			}
+			
+			@Override
+			public void mouseDoubleClick(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+		});
+	    panel.addMouseMoveListener(new MouseMoveListener() {
+			
+			@Override
+			public void mouseMove(MouseEvent arg0) {
+				if (mouseDown) {
+		    		Rectangle clientArea = panel.getClientArea();
+					xMouse=arg0.x;
+					player.seek(xMouse*player.maxDuration/clientArea.width);
+					panel.redraw();
+				}				
+			}
+		});
+
+	    // Create a paint handler for the canvas
+	    panel.addPaintListener(new PaintListener() {
+	    	public void paintControl(PaintEvent e) {
+	    		Device dev = e.gc.getDevice();
+	    		Rectangle clientArea = panel.getClientArea();
+                Rectangle trackRect;
+
+	            //e.gc.drawFocus(rect.x, rect.y, rect.width - 10, rect.height - 10);
+	    		//e.gc.drawText("text", 60, 60);
+                e.gc.setBackground(dev.getSystemColor(SWT.COLOR_WHITE));
+                e.gc.fillRectangle(clientArea);
+  
+                // mouse selection
+                if (mouseDown) {
+                	int x1=xMouseDown, x2=xMouse;
+                	if (xMouse<xMouseDown) {
+                		x1=xMouse; x2=xMouseDown;
+                	}
+    	    		e.gc.setBackground(dev.getSystemColor(SWT.COLOR_GRAY));
+               		e.gc.fillRectangle(x1, clientArea.y, x2-x1, clientArea.height-1);
+                }
+
+                // tracks
+                for (TreeItem i : tree.getItems()) {
+                	trackRect = i.getBounds();
+    	    		e.gc.setForeground(dev.getSystemColor(SWT.COLOR_DARK_BLUE));
+               		e.gc.drawRectangle(0, trackRect.y, clientArea.width, trackRect.height-1);
+               		for (TreeItem j : i.getItems()) {
+                    	trackRect = j.getBounds();
+        	    		e.gc.setForeground(dev.getSystemColor(SWT.COLOR_BLUE));
+                   		e.gc.drawRectangle(0, trackRect.y, clientArea.width, trackRect.height-1);
+               		}
+                }
+	    	}
+	    });
 	}
+
+
 	public String getProjectName() {
 		return null;
 	}
 	
+	/**
+	 * Update the current shell by information inside Annotation
+	 */
+	public void annotationUpdate() {
+		tree.removeAll();
+		for (Track t : annotation.getTracks()) {
+			addTrackData(tree, t);
+		}
+		
+	}
+	
+	private static TreeItem addTrackData(Tree tree, Track t) {
+    	TreeItem tItem = new TreeItem(tree, SWT.NONE);
+		tItem.setText(t.getName()); //new String[] { t.getName(), t.getTypeString() + " track", String.valueOf(t.getSlices().size()) + " slices"});
+		tItem.setData(t);
+    	//t.link = tItem;
+		int i=0;
+		for (Slice s : t.getSlices()) {
+			addSliceData(tItem, s, ++i);
+		}
+		tItem.setExpanded(true);
+		return tItem;
+	}
+
+	private static TreeItem addSliceData(TreeItem tItem, Slice s, int i) {
+		TreeItem sItem = new TreeItem(tItem, SWT.NONE);
+		sItem.setText(new String[] { "slice " + i, "slice", "duration: " + s.getStartTime() + " - " + s.getEndTime()});
+		sItem.setData(s);
+		return sItem;
+	}
+
+	private void addTool(ToolBar toolBar, String icon, SelectionAdapter adapter, String toolTip) {
+		ToolItem toolItem = new ToolItem(toolBar, PUSH);
+		try {
+			toolItem.setImage(new Image(shell().getDisplay(), getClass().getClassLoader().getResourceAsStream(icon)));
+			toolItem.setToolTipText(toolTip);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (adapter != null) {
+			toolItem.addSelectionListener(adapter);
+		}
+	}
+	
+	private void addSeparator(ToolBar toolBar) {
+		new ToolItem(toolBar, SWT.SEPARATOR);
+	}
+
 	public void dispose() {
-		shell().dispose();
 	}
 }
