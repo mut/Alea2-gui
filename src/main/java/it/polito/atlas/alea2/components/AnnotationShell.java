@@ -5,6 +5,7 @@ import static it.polito.atlas.alea2.components.DisplaySingleton.display;
 import java.util.concurrent.TimeUnit;
 
 import it.polito.atlas.alea2.Annotation;
+import it.polito.atlas.alea2.Track;
 import it.polito.atlas.alea2.TrackVideo;
 
 import org.eclipse.swt.SWT;
@@ -25,7 +26,7 @@ public class AnnotationShell {
 	private Shell shell;
 	private SWTPlayer player;
 	private Scale scale;
-	Annotation annotation;
+	private Annotation annotation;
 	static final int TIME_OUT = 125;
 	private boolean updatingScale;
 	private long maxLength=0; 	
@@ -35,6 +36,9 @@ public class AnnotationShell {
 		return shell;
 	}
 
+	/**
+	 * Timer for updating actual time
+	 */
 	final Runnable updaterRunnable = new Runnable() {
         public void run() {
             MainWindowShell.getDiplay().timerExec(TIME_OUT, updaterRunnable);
@@ -50,7 +54,7 @@ public class AnnotationShell {
 			}
 
 			long pos = player.getPosition();
-			shell().setText(SWTPlayer.timeString(pos) + " / " + maxLengthString);
+			shell().setText(annotation.getName() + " " + SWTPlayer.timeString(pos) + " / " + maxLengthString);
 		  	updatingScale = true;
 		  	scale.setSelection((int) pos / 1000);
 		  	updatingScale = false;
@@ -115,17 +119,77 @@ public class AnnotationShell {
 		Point size;
 		FormData formData;
 		
-		// Label
-		Label label = new Label(shell(), SWT.BORDER);
-		label.setText("Annotation: " + a.getName());
-		label.pack();
+		// Labels
+		Label label=null;
+		Label oldLabel=null;
+		for (Track t : annotation.getTracks()) {
+			oldLabel=label;
+			label = new Label(shell(), SWT.BORDER);
+			label.setText("Track: " + t.getTypeString() + " " + t.getName());
+			label.pack();
+			size = label.getSize();
+			formData = new FormData(size.x, size.y);
+			formData.left = new FormAttachment(0);
+			formData.right = new FormAttachment(100);
+			if (oldLabel==null) {
+				formData.top = new FormAttachment(0);
+			} else {
+				formData.top = new FormAttachment(oldLabel);
+			}
+			label.setLayoutData(formData);
+		}
+		
+		// Buttons size
 		size = label.getSize();
+		size.y = 50;
+
+		// Button Play
+		Button ok = new Button(shell(), SWT.PUSH);
+        ok.setText("Play / Resync");
+		formData = new FormData(size.x, size.y);
+		formData.left = new FormAttachment(50);
+		formData.right = new FormAttachment(100);
+		//formData.top = new FormAttachment(scale);
+		formData.bottom = new FormAttachment(100);
+		ok.setLayoutData(formData);
+		ok.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				player.play();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		// Button Pause
+		Button cancel = new Button(shell(), SWT.PUSH);
+		cancel.setText("Pause");
 		formData = new FormData(size.x, size.y);
 		formData.left = new FormAttachment(0);
-		formData.right = new FormAttachment(100);
-		formData.top = new FormAttachment(0);
-		label.setLayoutData(formData);
-		
+		formData.right = new FormAttachment(50);
+		//formData.top = new FormAttachment(scale);
+		formData.bottom = new FormAttachment(100);
+		cancel.setLayoutData(formData);
+		cancel.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				player.pause();
+				System.out.println(player.videos.get(0).queryDuration(TimeUnit.MILLISECONDS));
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});		
+
 		// Scale
 		scale = new Scale(shell(), SWT.BORDER);
 		scale.pack();
@@ -137,8 +201,8 @@ public class AnnotationShell {
 		formData = new FormData(size.x, size.y);
 		formData.left = new FormAttachment(0);
 		formData.right = new FormAttachment(100);
-		formData.top = new FormAttachment(label);
-		formData.bottom = new FormAttachment(60);
+		//formData.top = new FormAttachment(label);
+		formData.bottom = new FormAttachment(ok);
 		scale.setLayoutData(formData);
 		scale.addSelectionListener( new SelectionListener() {
 			
@@ -162,55 +226,13 @@ public class AnnotationShell {
 			}
 		});
 
-		// Button Play
-		Button ok = new Button(shell(), SWT.PUSH);
-        ok.setText("Play / Resync");
-		formData = new FormData(size.x, size.y);
-		formData.left = new FormAttachment(50);
-		formData.right = new FormAttachment(100);
-		formData.top = new FormAttachment(scale);
-		formData.bottom = new FormAttachment(100);
-		ok.setLayoutData(formData);
-		ok.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				player.play();
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		
-		// Button Pause
-		Button cancel = new Button(shell(), SWT.PUSH);
-		cancel.setText("Pause");
-		formData = new FormData(size.x, size.y);
-		formData.left = new FormAttachment(0);
-		formData.right = new FormAttachment(50);
-		formData.top = new FormAttachment(scale);
-		formData.bottom = new FormAttachment(100);
-		cancel.setLayoutData(formData);
-		cancel.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				player.pause();
-				System.out.println(player.videos.get(0).queryDuration(TimeUnit.MILLISECONDS));
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-		});		
 		shell.open();
 	}
 	public String getProjectName() {
 		return null;
+	}
+	
+	public void dispose() {
+		shell().dispose();
 	}
 }

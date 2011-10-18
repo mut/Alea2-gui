@@ -63,7 +63,7 @@ public class MainWindowShell {
 	/**
 	 * Annotation Editor list
 	 */
-	public static List<AnnotationShell> annotationShell = new ArrayList<AnnotationShell>();
+	public static List<AnnotationShell> annotationShells = new ArrayList<AnnotationShell>();
 
 	/**
 	 * Open Projects list
@@ -432,8 +432,14 @@ public class MainWindowShell {
 					display().sleep();
 				}
 			}
+			MainWindowShell.dispose();
 			display().dispose();
 		}
+	}
+
+	private static void dispose() {
+		for (AnnotationShell a : MainWindowShell.annotationShells)
+			a.shell().close();
 	}
 
 	public static Display getDiplay() {
