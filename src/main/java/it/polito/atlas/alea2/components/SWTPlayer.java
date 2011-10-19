@@ -95,6 +95,7 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 						p.dispose();
 						videos.set(index, null);
 					}
+					queryEndTime();
 					shells.set(index, null);
 				}
 
@@ -135,11 +136,17 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 
 	@Override
 	public long getEndTime() {
+		if (maxDuration==0)
+			return queryEndTime();
+		else
+			return maxDuration;
+	}
+	
+	public long queryEndTime() {
 		long duration;
 		for (PlayBin2 p : videos)
 			if (p != null) {
 				duration = p.queryDuration(TimeUnit.MILLISECONDS);
-				System.out.println("duration  = " + duration + "ms");
 				if (duration>maxDuration)
 					maxDuration=duration;
 			}

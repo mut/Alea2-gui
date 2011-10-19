@@ -66,8 +66,6 @@ public class AnnotationShell {
 	final Runnable updaterRunnable = new Runnable() {
         public void run() {
             MainWindowShell.getDiplay().timerExec(TIME_OUT, updaterRunnable);
-			if (updatingScale)
-				return;
 			
 			if (maxLength==0) {
 				maxLength=player.getEndTime();
@@ -79,16 +77,22 @@ public class AnnotationShell {
 
 			long pos = player.getPosition();
 			shell().setText(annotation.getName() + " " + SWTPlayer.timeString(pos) + " / " + maxLengthString);
-		  	updatingScale = true;
-		  	scale.setSelection((int) pos / 1000);
-		  	updatingScale = false;
+
+			if (!updatingScale) {
+			  	updatingScale = true;
+			  	scale.setSelection((int) pos / 1000);
+			  	updatingScale = false;
+			}
+			panel.redraw();
 			return;
       }
     };
 	private CoolBar coolBar;
 	protected boolean mouseDown=false;
 	protected int xMouseDown=-1;
-	protected int xMouse;
+	protected int xMouse=-1;
+	protected int yMouseDown;
+	protected int yMouse;
 
     public AnnotationShell(Annotation a) {
 		updatingScale = false;
@@ -175,8 +179,6 @@ public class AnnotationShell {
 		// Scale
 		scale = new Scale(shell(), SWT.BORDER);
 		scale.pack();
-		//long max=player.getEndTime();
-		//scale.setMaximum ((int) max);
 		size = scale.getSize();
 		formData = new FormData(size.x, size.y);
 		formData.left = new FormAttachment(vSash);
@@ -184,8 +186,8 @@ public class AnnotationShell {
 		//formData.top = new FormAttachment(label);
 		formData.bottom = new FormAttachment(100);
 		scale.setLayoutData(formData);
-		scale.addSelectionListener( new SelectionListener() {
-			
+		// scale moving
+		scale.addSelectionListener( new SelectionListener() {			
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				if (updatingScale)
@@ -193,12 +195,11 @@ public class AnnotationShell {
 				updatingScale = true;
 				
 				int perspectiveValue = scale.getSelection();
-				System.out.println(perspectiveValue);
+				//System.out.println(perspectiveValue);
 		        player.seek(perspectiveValue*1000);
 		        
 		        updatingScale = false;
-			}
-			
+			}			
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 				// TODO Auto-generated method stub
@@ -206,6 +207,7 @@ public class AnnotationShell {
 			}
 		});
 
+		// Player control Toolbar
 		coolBar = new CoolBar(shell(), SWT.BORDER_SOLID);
 		ToolBar toolBar = new ToolBar(coolBar, SWT.FLAT);
 		addTool(toolBar, "first.png", new SelectionAdapter() {
@@ -256,8 +258,8 @@ public class AnnotationShell {
 		coolData.bottom = new FormAttachment(100);
 		coolBar.setLayoutData(coolData);
 
-		// tree
-		tree = new Tree(shell(), SWT.CHECK | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		// Tree
+		tree = new Tree(shell(), SWT.H_SCROLL | SWT.V_SCROLL);
 	    formData = new FormData();
 	    formData.top = new FormAttachment(0);
 	    formData.bottom = new FormAttachment(coolBar);
@@ -279,16 +281,53 @@ public class AnnotationShell {
 			
 			@Override
 			public void mouseUp(MouseEvent arg0) {
-				//setSlice
 				mouseDown=false;
+				xMouse=arg0.x;
+				
+				long duration = player.getEndTime();
+       			if (duration==0)
+       				return;
+	    		Rectangle clientArea = panel.getClientArea();
+				if (clientArea.width==0)
+					return;
+				
+				float x1 = xMouseDown*duration/clientArea.width;
+				float x2 = xMouse*duration/clientArea.width;
+				if (x1>x2) {
+					float tmp=x1;
+					x1=x2;
+					x2=tmp;
+				}
+				
+				for (TreeItem item : tree.getSelection()) {
+					Object o = item.getData();
+					if ((o != null) && (o instanceof Slice))  {
+						((Slice) o).setStartTime((long)x1);
+						((Slice) o).setEndTime((long)x2);
+					}
+				}
 				panel.redraw();
 			}
 			
 			@Override
 			public void mouseDown(MouseEvent arg0) {
+				if ((arg0.stateMask & SWT.BUTTON1) != 0)
+					return;
 				mouseDown=true;
 				xMouseDown=arg0.x;
+				xMouse=xMouseDown;
+				yMouseDown=arg0.y;
+				yMouse=yMouseDown;
+
+				long duration = player.getEndTime();
+       			if (duration==0)
+       				return;
 	    		Rectangle clientArea = panel.getClientArea();
+				if (clientArea.width==0)
+					return;
+				
+				selectItem();
+
 				player.seek(xMouseDown*player.maxDuration/clientArea.width);
 				panel.redraw();
 			}
@@ -303,7 +342,13 @@ public class AnnotationShell {
 			@Override
 			public void mouseMove(MouseEvent arg0) {
 				if (mouseDown) {
+	       			long duration = player.getEndTime();
+	       			if (duration==0)
+	       				return;
 		    		Rectangle clientArea = panel.getClientArea();
+					if (clientArea.width==0)
+						return;
+					
 					xMouse=arg0.x;
 					player.seek(xMouse*player.maxDuration/clientArea.width);
 					panel.redraw();
@@ -317,6 +362,7 @@ public class AnnotationShell {
 	    		Device dev = e.gc.getDevice();
 	    		Rectangle clientArea = panel.getClientArea();
                 Rectangle trackRect;
+                long duration=player.getEndTime();
 
 	            //e.gc.drawFocus(rect.x, rect.y, rect.width - 10, rect.height - 10);
 	    		//e.gc.drawText("text", 60, 60);
@@ -331,23 +377,66 @@ public class AnnotationShell {
                 	}
     	    		e.gc.setBackground(dev.getSystemColor(SWT.COLOR_GRAY));
                		e.gc.fillRectangle(x1, clientArea.y, x2-x1, clientArea.height-1);
+    	    		e.gc.setForeground(dev.getSystemColor(SWT.COLOR_RED));
+               		e.gc.drawLine(xMouse, clientArea.y, xMouse, clientArea.height-1);
+                } else {
+    	    		e.gc.setForeground(dev.getSystemColor(SWT.COLOR_RED));
+               		if (duration!=0) {
+               			long x = player.getPosition() * clientArea.width / duration;
+               			e.gc.drawLine((int) x, clientArea.y, (int) x, clientArea.height-1);
+               		}
                 }
 
                 // tracks
                 for (TreeItem i : tree.getItems()) {
                 	trackRect = i.getBounds();
-    	    		e.gc.setForeground(dev.getSystemColor(SWT.COLOR_DARK_BLUE));
+    	    		e.gc.setForeground(dev.getSystemColor(SWT.COLOR_BLACK));
                		e.gc.drawRectangle(0, trackRect.y, clientArea.width, trackRect.height-1);
                		for (TreeItem j : i.getItems()) {
                     	trackRect = j.getBounds();
-        	    		e.gc.setForeground(dev.getSystemColor(SWT.COLOR_BLUE));
+        	    		e.gc.setForeground(dev.getSystemColor(SWT.COLOR_GREEN));
                    		e.gc.drawRectangle(0, trackRect.y, clientArea.width, trackRect.height-1);
+                   		Slice s = j.getData() instanceof Slice?(Slice) j.getData():null;
+                   		if (s != null) {
+                   			if (duration==0)
+                   				return;
+                   			long start = s.getStartTime();
+                   			long width = s.getEndTime()-start;
+                   			if (width!=0) {
+                   				float x1=start*clientArea.width/duration;
+                   				float x2=width*clientArea.width/duration;
+                	    		e.gc.setForeground(dev.getSystemColor(SWT.COLOR_BLUE));
+                           		e.gc.drawRectangle((int) x1, trackRect.y+1, (int) x2, trackRect.height-3);
+                	    		e.gc.setBackground(dev.getSystemColor(SWT.COLOR_CYAN));
+                           		e.gc.fillRectangle((int) x1+1, trackRect.y+2, (int) x2-2, trackRect.height-5);
+                   			}
+                   		}
                		}
                 }
 	    	}
 	    });
 	}
 
+
+	/**
+	 * Select the item at the same mouse height 
+	 */
+	protected void selectItem() {
+		for (TreeItem i : tree.getItems()) {
+       		Rectangle rect=i.getBounds();
+       		if ((rect.y <= yMouseDown) && (yMouseDown <= rect.y+rect.height)) {
+       			tree.select(i);
+       			return;
+       		}
+			for (TreeItem j : i.getItems()) {
+           		rect=j.getBounds();
+           		if ((rect.y <= yMouseDown) && (yMouseDown <= rect.y+rect.height)) {
+           			tree.select(j);
+           			return;
+           		}
+			}
+		}
+	}
 
 	public String getProjectName() {
 		return null;
