@@ -183,84 +183,19 @@ public class MainWindowShell {
 			}	    	
 	    });
 	    final Menu contextMenuAnnotation = new Menu(instance, SWT.POP_UP);
+	    final Menu lisMenu = new Menu(instance, SWT.DROP_DOWN);
+	    item = new MenuItem(contextMenuAnnotation, SWT.CASCADE);
+	    item.setText("Add Track LIS");	    
+	    item.setMenu(lisMenu);    
+	    addLISMenu(lisMenu, getLisListener());
+
 	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
-	    item.setText("Add Track LIS");
-	    item.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				for (TreeItem i : tree.getSelection()) {
-					Annotation a;
-					try {
-						a = (Annotation) i.getData();
-					} catch (Exception e) {
-						System.out.println(e.getMessage());
-						return;
-					}
-					if (a == null) {
-						System.out.println("No link betweek TreeItem and Annotation");
-						return;
-					}
-			    	String newTrackName = "New LIS Track";
-			    	TrackLIS t = new TrackLIS(newTrackName);
-			    	addTrackData(i, t);					
-					i.setExpanded(true);
-					a.addTrackLIS(t);
-				}
-			}	    	
-	    });
-	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
-	    item.setText("Add Track Video");
-	    item.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				String path=openVideoShell();
-				if (path==null)
-					return;
-				for (TreeItem i : tree.getSelection()) {
-					Annotation a;
-					try {
-						a = (Annotation) i.getData();
-					} catch (Exception e) {
-						System.out.println(e.getMessage());
-						return;
-					}
-					if (a == null) {
-						System.out.println("No link betweek TreeItem and Annotation");
-						return;
-					}
-			    	String newTrackName = path;
-			    	TrackVideo t = new TrackVideo(newTrackName);
-			    	addTrackData(i, t);					
-					i.setExpanded(true);
-					a.addTrackVideo(t);
-				}
-			}	    	
-	    });
+	    item.setText("Add Track Video");	    
+	    item.addListener(SWT.Selection, getVideoListener());
+	    
 	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
 	    item.setText("Add Track Text");
-	    item.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				for (TreeItem i : tree.getSelection()) {
-					Annotation a;
-					try {
-						a = (Annotation) i.getData();
-					} catch (Exception e) {
-						System.out.println(e.getMessage());
-						return;
-					}
-					if (a == null) {
-						System.out.println("No link betweek TreeItem and Annotation");
-						return;
-					}
-			    	String newTrackName = "New Text Track";
-			    	TrackText t = new TrackText(newTrackName);
-			    	addTrackData(i, t);
-					i.setExpanded(true);
-					a.addTrackText(t);
-				}
-			}	    	
-	    });
+	    item.addListener(SWT.Selection, getTextListener());
 	    
 	    final Menu contextMenuAddAnnotation = new Menu(instance, SWT.POP_UP);
 	    item = new MenuItem(contextMenuAddAnnotation, SWT.PUSH);
@@ -355,6 +290,143 @@ public class MainWindowShell {
 	    column3.setMoveable(true);
 		tree.pack();
 		return tree;
+	}
+
+	private static void addLISMenu(Menu lisMenu, Listener lisListener) {
+        MenuItem item;
+		final Menu handsMenu = new Menu(instance, SWT.DROP_DOWN);
+	    item = new MenuItem(lisMenu, SWT.CASCADE);
+	    item.setText("Hands");	    
+	    item.setMenu(handsMenu);	    
+		    item = new MenuItem(handsMenu, SWT.CASCADE);
+		    item.setText("Both Hands");
+		    item.addListener(SWT.Selection, lisListener);
+		    item = new MenuItem(handsMenu, SWT.CASCADE);
+		    item.setText("Left Hand");
+		    item.addListener(SWT.Selection, lisListener);
+		    item = new MenuItem(handsMenu, SWT.CASCADE);
+		    item.setText("Right Hand");	    
+	    item.addListener(SWT.Selection, lisListener);
+	    item = new MenuItem(lisMenu, SWT.CASCADE);
+	    item.setText("Orientation");
+	    item.addListener(SWT.Selection, lisListener);
+	    item = new MenuItem(lisMenu, SWT.CASCADE);
+	    item.setText("Torso");
+	    item.addListener(SWT.Selection, lisListener);
+	    item = new MenuItem(lisMenu, SWT.CASCADE);
+	    item.setText("Shoulder");
+	    item.addListener(SWT.Selection, lisListener);
+	    item = new MenuItem(lisMenu, SWT.CASCADE);
+	    item.setText("Head");
+	    item.addListener(SWT.Selection, lisListener);		    
+	    final Menu facialMenu = new Menu(instance, SWT.DROP_DOWN);
+	    item = new MenuItem(lisMenu, SWT.CASCADE);
+	    item.setText("Facial");	    
+	    item.setMenu(facialMenu);
+		    item = new MenuItem(lisMenu, SWT.CASCADE);
+		    item.setText("Eyes");
+		    item.addListener(SWT.Selection, lisListener);	
+		    item = new MenuItem(lisMenu, SWT.CASCADE);
+		    item.setText("Nose");
+		    item.addListener(SWT.Selection, lisListener);	
+		    item = new MenuItem(lisMenu, SWT.CASCADE);
+		    item.setText("Cheeks");
+		    item.addListener(SWT.Selection, lisListener);	
+	    final Menu labialMenu = new Menu(instance, SWT.DROP_DOWN);
+	    item = new MenuItem(lisMenu, SWT.CASCADE);
+	    item.setText("Labial");	    
+	    item.setMenu(labialMenu);
+		    item = new MenuItem(lisMenu, SWT.CASCADE);
+		    item.setText("Mouth");
+		    item.addListener(SWT.Selection, lisListener);	
+	    item = new MenuItem(lisMenu, SWT.CASCADE);
+	    item.setText("Gaze");
+	    item.addListener(SWT.Selection, lisListener);	
+	    item = new MenuItem(lisMenu, SWT.CASCADE);
+	    item.setText("Custom");
+	    item.addListener(SWT.Selection, lisListener);	
+	}
+
+	private static Listener getVideoListener() {
+		return new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				String path=openVideoShell();
+				if (path==null)
+					return;
+				for (TreeItem i : getCurrentTree().getSelection()) {
+					Annotation a;
+					try {
+						a = (Annotation) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (a == null) {
+						System.out.println("No link betweek TreeItem and Annotation");
+						return;
+					}
+			    	String newTrackName = path;
+			    	TrackVideo t = new TrackVideo(newTrackName);
+			    	addTrackData(i, t);					
+					i.setExpanded(true);
+					a.addTrackVideo(t);
+				}
+			}
+		};
+	}
+	private static Listener getTextListener() {
+		return new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				for (TreeItem i : getCurrentTree().getSelection()) {
+					Annotation a;
+					try {
+						a = (Annotation) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (a == null) {
+						System.out.println("No link betweek TreeItem and Annotation");
+						return;
+					}
+					MenuItem item = (MenuItem) event.widget;
+			        String newTrackName = item.getText();
+			    	TrackText t = new TrackText(newTrackName);
+			    	addTrackData(i, t);					
+					i.setExpanded(true);
+					a.addTrackText(t);
+				}
+			}	    	
+	    };
+	}
+	
+	private static Listener getLisListener() {
+		return new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				for (TreeItem i : getCurrentTree().getSelection()) {
+					Annotation a;
+					try {
+						a = (Annotation) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (a == null) {
+						System.out.println("No link betweek TreeItem and Annotation");
+						return;
+					}
+					MenuItem item = (MenuItem) event.widget;
+			        String newTrackName = item.getText();
+			    	TrackLIS t = new TrackLIS(newTrackName);
+			    	addTrackData(i, t);					
+					i.setExpanded(true);
+					a.addTrackLIS(t);
+				}
+			}	    	
+	    };
 	}
 
 	public static void updateTree(final Tree tree, Project p) {

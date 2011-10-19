@@ -43,6 +43,10 @@ public class AnnotationShell {
 	private Annotation annotation;
 
 	static final int TIME_OUT = 125;
+	// define timeline granularity in millisecond
+	static final int TIME_LINE_DENSITY = 1;
+	static final int TIME_LINE_STEP = 10;
+	
 	private boolean updatingScale;
 	private long maxLength=0; 	
 	private String maxLengthString="0"; 
@@ -71,7 +75,7 @@ public class AnnotationShell {
 				maxLength=player.getEndTime();
 				maxLengthString = SWTPlayer.timeString(maxLength);
 				updatingScale = true;
-				scale.setMaximum((int) maxLength / 1000);
+				scale.setMaximum((int) maxLength / TIME_LINE_DENSITY);
 				updatingScale = false;
 			}
 
@@ -80,7 +84,7 @@ public class AnnotationShell {
 
 			if (!updatingScale) {
 			  	updatingScale = true;
-			  	scale.setSelection((int) pos / 1000);
+			  	scale.setSelection((int) pos / TIME_LINE_DENSITY);
 			  	updatingScale = false;
 			}
 			panel.redraw();
@@ -196,7 +200,7 @@ public class AnnotationShell {
 				
 				int perspectiveValue = scale.getSelection();
 				//System.out.println(perspectiveValue);
-		        player.seek(perspectiveValue*1000);
+		        player.seek(perspectiveValue*TIME_LINE_DENSITY);
 		        
 		        updatingScale = false;
 			}			
