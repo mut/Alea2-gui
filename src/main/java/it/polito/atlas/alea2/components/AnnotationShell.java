@@ -147,16 +147,21 @@ public class AnnotationShell {
 	};
 
     public AnnotationShell(Tree tree) {
-    	project = (Project) tree.getData();
-		annotation = project.getCurrentAnnotation();
-
-		updatingScale = false;
-		player = new SWTPlayer();
-		
-		for (TrackVideo t : annotation.getTracksVideo()) {
-			System.out.println(t.getName());			
-			player.addVideo(t);
-		}
+    	try {
+    		project = (Project) tree.getData();
+	    	annotation = project.getCurrentAnnotation();
+	
+			updatingScale = false;
+			player = new SWTPlayer();
+			
+			for (TrackVideo t : annotation.getTracksVideo()) {
+				System.out.println(t.getName());			
+				player.addVideo(t);
+			}
+    	} catch (Exception e) {
+    		System.out.println(e.getMessage());
+    		return;
+    	}
 		
 		shell = new Shell(display());
 		shell.setText("Annotation Editor");

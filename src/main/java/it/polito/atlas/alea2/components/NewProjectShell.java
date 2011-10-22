@@ -20,7 +20,8 @@ import org.eclipse.swt.widgets.Text;
 
 public class NewProjectShell {
 	private Shell shell;
-	private Text text;
+	private Text textName;
+	private Text textTags;
 
 	public Shell shell() {
 		return shell;
@@ -29,7 +30,7 @@ public class NewProjectShell {
 	public NewProjectShell() {
 		shell = new Shell(display());
 		shell.setText("New Project");
-		shell.setSize(320, 120);
+		shell.setSize(320, 200);
 		shell.setLocation(SWT.DEFAULT, SWT.DEFAULT);
 		shell.addShellListener(new ShellListener() {
 			
@@ -66,35 +67,46 @@ public class NewProjectShell {
 		Point size;
 		FormData formData;
 		
-		// Label
-		Label label = new Label(shell(), SWT.BORDER);
-		label.setText("Insert the Project name:");
-		label.pack();
-		size = label.getSize();
+		// Label name
+		Label labelName = new Label(shell(), SWT.BORDER);
+		labelName.setText("Insert the Project name:");
+		labelName.pack();
+		size = labelName.getSize();
 		formData = new FormData(size.x, size.y);
 		formData.left = new FormAttachment(0);
 		formData.right = new FormAttachment(100);
 		formData.top = new FormAttachment(0);
-		label.setLayoutData(formData);
+		labelName.setLayoutData(formData);
 		
-		// Text
-		text = new Text(shell(), SWT.SINGLE | SWT.BORDER);
-		text.pack();
-		size = text.getSize();
+		// Text name
+		textName = new Text(shell(), SWT.SINGLE | SWT.BORDER);
+		textName.pack();
+		size = textName.getSize();
 		formData = new FormData(size.x, size.y);
 		formData.left = new FormAttachment(0);
 		formData.right = new FormAttachment(100);
-		formData.top = new FormAttachment(label);
-		formData.bottom = new FormAttachment(60);
-		text.setLayoutData(formData);
+		formData.top = new FormAttachment(labelName);
+		//formData.bottom = new FormAttachment(60);
+		textName.setLayoutData(formData);
 		
+		// Label Tags
+		Label labelTags = new Label(shell(), SWT.BORDER);
+		labelTags.setText("Insert the Project tags:");
+		labelTags.pack();
+		size = labelTags.getSize();
+		formData = new FormData(size.x, size.y);
+		formData.left = new FormAttachment(0);
+		formData.right = new FormAttachment(100);
+		formData.top = new FormAttachment(textName);
+		labelTags.setLayoutData(formData);
+
 		// Button OK
 		Button ok = new Button(shell(), SWT.PUSH);
         ok.setText("OK");
-		formData = new FormData(size.x, size.y);
+		formData = new FormData(size.x, 40);
 		formData.left = new FormAttachment(50);
 		formData.right = new FormAttachment(100);
-		formData.top = new FormAttachment(text);
+		//formData.top = new FormAttachment(textTags);
 		formData.bottom = new FormAttachment(100);
 		ok.setLayoutData(formData);
 		ok.addSelectionListener(new SelectionListener() {
@@ -102,6 +114,7 @@ public class NewProjectShell {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				Project p=new Project(getProjectName());
+				p.setTags(getProjectTags());
 				if (MainWindowShell.openProject(p)){
 					shell().close();
 				} else {
@@ -121,10 +134,10 @@ public class NewProjectShell {
 		// Button Cancel
 		Button cancel = new Button(shell(), SWT.PUSH);
 		cancel.setText("Cancel");
-		formData = new FormData(size.x, size.y);
+		formData = new FormData(size.x, 40);
 		formData.left = new FormAttachment(0);
 		formData.right = new FormAttachment(50);
-		formData.top = new FormAttachment(text);
+		//formData.top = new FormAttachment(textTags);
 		formData.bottom = new FormAttachment(100);
 		cancel.setLayoutData(formData);
 		cancel.addSelectionListener(new SelectionListener() {
@@ -140,9 +153,24 @@ public class NewProjectShell {
 				
 			}
 		});		
+		
+		// Text tags
+		textTags = new Text(shell(), SWT.SINGLE | SWT.BORDER);
+		textTags.pack();
+		size = textTags.getSize();
+		formData = new FormData(size.x, size.y);
+		formData.left = new FormAttachment(0);
+		formData.right = new FormAttachment(100);
+		formData.top = new FormAttachment(labelTags);
+		formData.bottom = new FormAttachment(ok);
+		textTags.setLayoutData(formData);
+		
 		shell.open();
 	}
 	public String getProjectName() {
-		return text.getText();
+		return textName.getText();
+	}
+	public String getProjectTags() {
+		return textTags.getText();
 	}
 }
