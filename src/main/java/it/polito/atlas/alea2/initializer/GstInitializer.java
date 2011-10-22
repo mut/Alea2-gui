@@ -2,8 +2,15 @@ package it.polito.atlas.alea2.initializer;
 
 import org.gstreamer.Gst;
 
+/**
+ * @author  DANGELOA
+ */
 public class GstInitializer extends Initializer {
 
+	/**
+	 * @uml.property  name="instance"
+	 * @uml.associationEnd  
+	 */
 	private static final GstInitializer instance = new GstInitializer();
 
 	@Override

@@ -19,12 +19,23 @@ import org.eclipse.swt.widgets.CoolItem;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
+/**
+ * @author  DANGELOA
+ */
 public class ToolBarInitializer extends Initializer {
 
+	/**
+	 * @uml.property  name="instance"
+	 * @uml.associationEnd  
+	 */
 	private static final ToolBarInitializer instance = new ToolBarInitializer();
+	/**
+	 * @uml.property  name="coolBar"
+	 */
 	private static CoolBar coolBar;
 	/**
-	 * @return the coolBar
+	 * @return  the coolBar
+	 * @uml.property  name="coolBar"
 	 */
 	public static CoolBar getCoolBar() {
 		return coolBar;

@@ -1,12 +1,12 @@
 package it.polito.atlas.alea2.adapters;
 
-import it.polito.atlas.alea2.Annotation;
 import it.polito.atlas.alea2.Project;
 import it.polito.atlas.alea2.components.AnnotationShell;
 import it.polito.atlas.alea2.components.MainWindowShell;
 
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Tree;
 
 public class RunAnnotationAdapter extends SelectionAdapter {
 	
@@ -16,12 +16,13 @@ public class RunAnnotationAdapter extends SelectionAdapter {
 		if (p == null)
 			return;
 		
-		Annotation a = p.getCurrentAnnotation();
-		if (a == null)
+		Tree tree = MainWindowShell.getCurrentTree();
+		if (tree == null)
 			return;
 		
-		AnnotationShell as = new AnnotationShell(a);
+		AnnotationShell as = new AnnotationShell(tree);
 		MainWindowShell.annotationShells.add(as);
+		as.getPlayer().open();
 		
 	}
 }

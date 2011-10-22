@@ -1,7 +1,14 @@
 package it.polito.atlas.alea2.initializer;
 
+/**
+ * @author  DANGELOA
+ */
 public class MacPlatformInitializer extends Initializer {
 
+	/**
+	 * @uml.property  name="instance"
+	 * @uml.associationEnd  
+	 */
 	private static MacPlatformInitializer instance = new MacPlatformInitializer();
 
 	public static Initializer macPlatformInizializer() {

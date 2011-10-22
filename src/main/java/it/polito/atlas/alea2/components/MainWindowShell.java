@@ -35,13 +35,20 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 
+/**
+ * @author  DANGELOA
+ */
 public class MainWindowShell {
 
 	private static final Shell instance;
+	/**
+	 * @uml.property  name="layout"
+	 */
 	private static final FormLayout layout;
 
 	/**
-	 * @return the layout
+	 * @return  the layout
+	 * @uml.property  name="layout"
 	 */
 	public static FormLayout getLayout() {
 		return layout;
@@ -67,11 +74,13 @@ public class MainWindowShell {
 
 	/**
 	 * Open Projects list
+	 * @uml.property  name="projects"
 	 */
 	private static List<Project> projects = new ArrayList<Project>();
 
 	/**
-	 * @return the Open Projects List
+	 * @return  the Open Projects List
+	 * @uml.property  name="projects"
 	 */
 	public static List<Project> getProjects() {
 		return projects;
@@ -108,7 +117,8 @@ public class MainWindowShell {
 	}
 
 	/**
-	 * @return the Storage
+	 * @return  the Storage
+	 * @uml.property  name="storage"
 	 */
 	public static Storage getStorage() {
 		return storage;
@@ -116,6 +126,7 @@ public class MainWindowShell {
 
 	/**
 	 * Projects Storage
+	 * @uml.property  name="storage"
 	 */
 	private static Storage storage = new DBStorage();
 
@@ -176,7 +187,7 @@ public class MainWindowShell {
 						return;
 					}
 			    	Slice s = new Slice(0, 0);
-			    	addSliceData(i, s, t.getSlices().size());					
+			    	addSliceData(i, s, t.getSlices().size() + 1);					
 					i.setExpanded(true);
 					t.addSlice(s);
 				}
@@ -206,7 +217,7 @@ public class MainWindowShell {
 				Project p = getCurrentProject();
 				if (p == null)
 					return;
-		    	String newAnnotationName = "New Annotation";
+		    	String newAnnotationName = "Annotation " + p.getAnnotations().size();
 		    	Annotation a = new Annotation(newAnnotationName);
 				TreeItem aItem = addAnnotationData(tree, a);
 				aItem.setExpanded(true);
@@ -429,8 +440,8 @@ public class MainWindowShell {
 	    };
 	}
 
-	public static void updateTree(final Tree tree, Project p) {
-		tree.clearAll(true);
+	public static void updateTree(Tree tree, Project p) {
+		tree.removeAll();
 		addProjectData(tree, p);
 	}
 
@@ -440,6 +451,7 @@ public class MainWindowShell {
      */
 	public static void addProjectData(Tree tree, Project p) {
 		p.link = tree;
+		tree.setData(p);
 	    for (Annotation a : p.getAnnotations()) {
 	    	TreeItem aItem = addAnnotationData(tree, a);
 	    	if (aItem != null)

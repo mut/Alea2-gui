@@ -2,6 +2,7 @@ package it.polito.atlas.alea2.adapters;
 
 import static it.polito.atlas.alea2.components.MainWindowStatusBar.getStatusBar;
 
+import it.polito.atlas.alea2.TrackVideo;
 import it.polito.atlas.alea2.components.MainWindowShell;
 import it.polito.atlas.alea2.components.SWTPlayer;
 
@@ -20,7 +21,7 @@ public class OpenVideoAdapter extends SelectionAdapter {
 		getStatusBar().pack();
 		
 		SWTPlayer pl = new SWTPlayer();
-		pl.addVideo(path);
+		pl.addVideo(new TrackVideo(path));
 		pl.play();
 	}
 

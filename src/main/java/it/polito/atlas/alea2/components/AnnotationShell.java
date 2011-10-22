@@ -4,6 +4,8 @@ import static it.polito.atlas.alea2.components.DisplaySingleton.display;
 import static org.eclipse.swt.SWT.PUSH;
 
 import it.polito.atlas.alea2.Annotation;
+import it.polito.atlas.alea2.Player;
+import it.polito.atlas.alea2.Project;
 import it.polito.atlas.alea2.Slice;
 import it.polito.atlas.alea2.Track;
 import it.polito.atlas.alea2.TrackVideo;
@@ -37,29 +39,53 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
+/**
+ * @author  DANGELOA
+ */
 public class AnnotationShell {
 	private Shell shell;
+	/**
+	 * @uml.property  name="player"
+	 * @uml.associationEnd  
+	 */
 	private SWTPlayer player;
 	private Annotation annotation;
+	private Project project;
 
-	static final int TIME_OUT = 125;
-	// define timeline granularity in millisecond
-	static final int TIME_LINE_DENSITY = 1;
-	static final int TIME_LINE_STEP = 10;
+	static final String name="Annotation Editor";
 	
+	/**
+	 * The Background Worker call back frequency in milliseconds
+	 */
+	static final int TIME_OUT = 125;
+	/**
+	 * Defines scale granularity in millisecond
+	 */
+	static final int TIME_LINE_DENSITY = 1;
+	/**
+	 * Defines scale steps
+	 */
+	static final int TIME_LINE_STEP = 10;
+	/**
+	 * Set when update the scale (avoid concurrency)
+	 */
 	private boolean updatingScale;
+	/**
+	 * Maximum length of videos in milliseconds
+	 */
 	private long maxLength=0; 	
 	private String maxLengthString="0"; 
 	
-	// common layout
-	private Scale scale;
-	
-	// new layout
+	// Layout
 	Tree tree;
-	Canvas panel;
 	CoolBar playCommands;
+	Canvas panel;
+	private Scale scale;
 		
-
+	/**
+	 * return the instance of the Annotation Shell
+	 * @return
+	 */
 	public Shell shell() {
 		return shell;
 	}
@@ -80,7 +106,7 @@ public class AnnotationShell {
 			}
 
 			long pos = player.getPosition();
-			shell().setText(annotation.getName() + " " + SWTPlayer.timeString(pos) + " / " + maxLengthString);
+			shell().setText(name + " \"" + annotation.getName() + "\" [" + SWTPlayer.timeString(pos) + " / " + maxLengthString + "]");
 
 			if (!updatingScale) {
 			  	updatingScale = true;
@@ -92,20 +118,44 @@ public class AnnotationShell {
       }
     };
 	private CoolBar coolBar;
+	/**
+	 * Mouse is clicked
+	 */
 	protected boolean mouseDown=false;
+	/**
+	 * Mouse x position when clicked
+	 */
 	protected int xMouseDown=-1;
+	/**
+	 * Current mouse x position
+	 */
 	protected int xMouse=-1;
+	/**
+	 * Mouse y position when clicked
+	 */
 	protected int yMouseDown;
+	/**
+	 * Current mouse x position
+	 */
 	protected int yMouse;
 
-    public AnnotationShell(Annotation a) {
+	/**
+	 * @return the Player instance
+	 */
+	public Player getPlayer() {
+		return player;
+	};
+
+    public AnnotationShell(Tree tree) {
+    	project = (Project) tree.getData();
+		annotation = project.getCurrentAnnotation();
+
 		updatingScale = false;
-		annotation = a;
 		player = new SWTPlayer();
 		
-		for (TrackVideo t : a.getTracksVideo()) {
+		for (TrackVideo t : annotation.getTracksVideo()) {
 			System.out.println(t.getName());			
-			player.addVideo(t.getName());
+			player.addVideo(t);
 		}
 		
 		shell = new Shell(display());
@@ -140,6 +190,7 @@ public class AnnotationShell {
 				MainWindowShell.getDiplay().timerExec(-1, updaterRunnable);
 				player.dispose();
 				shell=null;
+				MainWindowShell.updateTree(getProjectTree(), project);
 			}
 			
 			@Override
@@ -223,7 +274,7 @@ public class AnnotationShell {
 		addTool(toolBar, "play.png", new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				player.play(false);
+				player.play();
 			}
 		}, "Play");
 		addTool(toolBar, "pause.png", new SelectionAdapter() {			
@@ -242,9 +293,9 @@ public class AnnotationShell {
 		addTool(toolBar, "resync.png", new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				player.play(true);
+				player.resync();
 			}
-		}, "Play Resync");
+		}, "Resync");
 		toolBar.pack();
 		// Add a coolItem to a coolBar
 		CoolItem coolItem = new CoolItem(coolBar, SWT.NULL);
@@ -271,7 +322,7 @@ public class AnnotationShell {
 	    formData.right = new FormAttachment(vSash);
 	    tree.setLayoutData(formData);
 		
-	    // Create a canvas
+	    // Create the panel with Tracks
 	    panel = new Canvas(shell(), SWT.NONE);
 
 	    formData = new FormData();
@@ -360,7 +411,7 @@ public class AnnotationShell {
 			}
 		});
 
-	    // Create a paint handler for the canvas
+	    // Create a paint handler for the panel
 	    panel.addPaintListener(new PaintListener() {
 	    	public void paintControl(PaintEvent e) {
 	    		Device dev = e.gc.getDevice();
@@ -373,7 +424,7 @@ public class AnnotationShell {
                 e.gc.setBackground(dev.getSystemColor(SWT.COLOR_WHITE));
                 e.gc.fillRectangle(clientArea);
   
-                // mouse selection
+                // Paint the mouse selection
                 if (mouseDown) {
                 	int x1=xMouseDown, x2=xMouse;
                 	if (xMouse<xMouseDown) {
@@ -391,7 +442,7 @@ public class AnnotationShell {
                		}
                 }
 
-                // tracks
+                // Paint the tracks and slices
                 for (TreeItem i : tree.getItems()) {
                 	trackRect = i.getBounds();
     	    		e.gc.setForeground(dev.getSystemColor(SWT.COLOR_BLACK));
@@ -423,7 +474,7 @@ public class AnnotationShell {
 
 
 	/**
-	 * Select the item at the same mouse height 
+	 * Select the item at the same mouse y position 
 	 */
 	protected void selectItem() {
 		for (TreeItem i : tree.getItems()) {
@@ -442,12 +493,12 @@ public class AnnotationShell {
 		}
 	}
 
-	public String getProjectName() {
-		return null;
+	public Tree getProjectTree() {
+		return (Tree) project.link;
 	}
 	
 	/**
-	 * Update the current shell by information inside Annotation
+	 * Update the current shell by information inside the attached Annotation
 	 */
 	public void annotationUpdate() {
 		tree.removeAll();
@@ -457,6 +508,12 @@ public class AnnotationShell {
 		
 	}
 	
+	/**
+	 * Insert a Track inside the Tree
+	 * @param tree The Tree
+	 * @param t The Track
+	 * @return
+	 */
 	private static TreeItem addTrackData(Tree tree, Track t) {
     	TreeItem tItem = new TreeItem(tree, SWT.NONE);
 		tItem.setText(t.getName()); //new String[] { t.getName(), t.getTypeString() + " track", String.valueOf(t.getSlices().size()) + " slices"});
@@ -470,6 +527,13 @@ public class AnnotationShell {
 		return tItem;
 	}
 
+	/**
+	 * Append a Slice to the Track inside the Tree
+	 * @param tree The Track TreeItem
+	 * @param t The Slice
+	 * @param i A sequence number for the Track
+	 * @return
+	 */
 	private static TreeItem addSliceData(TreeItem tItem, Slice s, int i) {
 		TreeItem sItem = new TreeItem(tItem, SWT.NONE);
 		sItem.setText(new String[] { "slice " + i, "slice", "duration: " + s.getStartTime() + " - " + s.getEndTime()});

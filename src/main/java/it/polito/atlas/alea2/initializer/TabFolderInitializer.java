@@ -12,10 +12,20 @@ import org.eclipse.swt.widgets.TabFolder;
 //import org.eclipse.swt.widgets.TabItem;
 
 
+/**
+ * @author  DANGELOA
+ */
 public class TabFolderInitializer extends Initializer {
 
+	/**
+	 * @uml.property  name="instance"
+	 * @uml.associationEnd  
+	 */
 	private static final TabFolderInitializer instance = new TabFolderInitializer();
 	
+	/**
+	 * @uml.property  name="tabFolder"
+	 */
 	private static TabFolder tabFolder;
 
 	@Override
@@ -51,9 +61,10 @@ public class TabFolderInitializer extends Initializer {
 		return instance;
 	}
 
-	/** Return the main Tab Folder
-	 * 
-	 * @return TabFolder instance
+	/**
+	 * Return the main Tab Folder
+	 * @return  TabFolder instance
+	 * @uml.property  name="tabFolder"
 	 */
 	public static TabFolder getTabFolder() {
 		return tabFolder;
