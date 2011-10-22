@@ -21,7 +21,7 @@ public class OpenVideoAdapter extends SelectionAdapter {
 		getStatusBar().pack();
 		
 		SWTPlayer pl = new SWTPlayer();
-		pl.addVideo(new TrackVideo(path));
+		pl.addVideo(new TrackVideo(null, path));
 		pl.play();
 	}
 

@@ -361,6 +361,7 @@ public class AnnotationShell {
 						((Slice) o).setEndTime((long)x2);
 					}
 				}
+				annotationUpdate();
 				panel.redraw();
 			}
 			
