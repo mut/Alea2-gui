@@ -155,7 +155,7 @@ public class NewProjectShell {
 		});		
 		
 		// Text tags
-		textTags = new Text(shell(), SWT.SINGLE | SWT.BORDER);
+		textTags = new Text(shell(), SWT.MULTI | SWT.BORDER);
 		textTags.pack();
 		size = textTags.getSize();
 		formData = new FormData(size.x, size.y);

@@ -213,9 +213,8 @@ public class MainWindowShell {
 						return;
 					}
 			    	Slice s = new Slice(t, 0, 0);
-			    	addSliceData(i, s, t.getSlices().size()+1);
-			    	i.setExpanded(true);
 			    	t.addSlice(s);
+			    	MainWindowShell.updateTree(getCurrentTree(), getCurrentProject());
 				}
 			}	    	
 	    });
@@ -293,21 +292,20 @@ public class MainWindowShell {
 					return;
 		    	String newAnnotationName = "Annotation " + (p.getAnnotations().size() + 1);
 		    	Annotation a = new Annotation(p, newAnnotationName);
-				TreeItem aItem = addAnnotationData(tree, a);
-				aItem.setExpanded(true);
 				p.addAnnotation(a);
+		    	MainWindowShell.updateTree(getCurrentTree(), getCurrentProject());
 			}	    	
 	    });
 	    
-		// mouse listener add context menu
+		// Mouse listener: assign the right context menu by the item type
 	    tree.addListener(SWT.MouseDown, new Listener() {
 
 	    	public void handleEvent(Event event) {
 	    		Point point = new Point(event.x, event.y);
-	    		System.out.println("Point: " + point.x + "," + point.y);
+	    		// System.out.println("Point: " + point.x + "," + point.y);
 	    		TreeItem item = tree.getItem(point);
 	    		if (item != null) {
-	    			System.out.println("Mouse inside item");
+	    			// System.out.println("Mouse inside item");
 	    			for (TreeItem i : tree.getSelection()) {
 	    				Object o=i.getData();
 	    				if (o instanceof Annotation) {
@@ -317,13 +315,14 @@ public class MainWindowShell {
 	    				} else if (o instanceof Slice) {
 	    					tree.setMenu(contextMenuSlice);
 	    				} else {
+	    	    			System.out.println("Unknown item type: no context menu");
 	    					tree.setMenu(null);
 	    				}
 	    				if (o != null)
 	    					System.out.println(i + ": " + o.getClass());
 	    			}
 	    		} else {
-	    			System.out.println("No Item");
+	    			// System.out.println("No Item");
 		         	// System.out.println("Rect: " + r.x + "," + r.y + "," + r.width + "," + r.height);
 		         	tree.setMenu(contextMenuAddAnnotation);
 	    		}

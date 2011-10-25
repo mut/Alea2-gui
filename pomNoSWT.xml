@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>it.polito.atlas</groupId>
-	<artifactId>alea2-gui</artifactId>
+	<artifactId>Alea2-gui</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
@@ -31,7 +31,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>it.polito.atlas</groupId>
-			<artifactId>alea2</artifactId>
+			<artifactId>Alea2</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
