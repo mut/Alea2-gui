@@ -8,6 +8,7 @@ import it.polito.atlas.alea2.Player;
 import it.polito.atlas.alea2.Project;
 import it.polito.atlas.alea2.Slice;
 import it.polito.atlas.alea2.Track;
+import it.polito.atlas.alea2.TrackLIS;
 import it.polito.atlas.alea2.TrackVideo;
 
 import org.eclipse.swt.SWT;
@@ -31,6 +32,10 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.CoolBar;
 import org.eclipse.swt.widgets.CoolItem;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
@@ -206,7 +211,7 @@ public class AnnotationShell {
 		});
 		
 		setLayout();
-		annotationUpdate();
+		updateTree(this.tree, annotation);
         MainWindowShell.getDiplay().timerExec(TIME_OUT, updaterRunnable);
 		shell().open();
 	}
@@ -326,6 +331,171 @@ public class AnnotationShell {
 	    formData.left = new FormAttachment(0);
 	    formData.right = new FormAttachment(vSash);
 	    tree.setLayoutData(formData);
+	    // Tree pop up menus
+	    MenuItem item;
+	    // Slice context menu
+	    final Menu contextMenuSlice = new Menu(shell(), SWT.POP_UP);
+	    item = new MenuItem(contextMenuSlice, SWT.PUSH);
+	    item.setText("Remove Slice");
+	    item.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event arg0) {
+				for (TreeItem i : tree.getSelection()) {
+					Slice s;
+					try {
+						s = (Slice) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (s == null) {
+						System.out.println("No link betweek TreeItem and Slice");
+						return;
+					}
+			    	s.dispose();
+			    	updateTree(tree, annotation);
+				}
+			}
+		});
+
+	    // Track context menu
+	    final Menu contextMenuTrack = new Menu(shell(), SWT.POP_UP);
+	    item = new MenuItem(contextMenuTrack, SWT.PUSH);
+	    item.setText("Add Slice");
+	    item.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				//MessageBox mb = new MessageBox(instance);
+				//mb.setMessage("Insert the name: ");
+				//mb.open();
+				for (TreeItem i : tree.getSelection()) {
+					Track t;
+					try {
+						t = (Track) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (t == null) {
+						System.out.println("No link betweek TreeItem and Track");
+						return;
+					}
+			    	Slice s = new Slice(t, 0, 0);
+			    	t.addSlice(s);
+			    	updateTree(tree, annotation);
+				}
+			}	    	
+	    });
+	    item = new MenuItem(contextMenuTrack, SWT.PUSH);
+	    item.setText("Remove Track");
+	    item.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event arg0) {
+				for (TreeItem i : tree.getSelection()) {
+					Track t;
+					try {
+						t = (Track) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (t == null) {
+						System.out.println("No link betweek TreeItem and Track");
+						return;
+					}
+			    	t.dispose();
+			    	updateTree(tree, annotation);
+				}
+			}
+		});
+
+	    // Annotation context menu
+	    final Menu contextMenuAnnotation = new Menu(shell(), SWT.POP_UP);
+	    final Menu lisMenu = new Menu(shell(), SWT.DROP_DOWN);
+	    item = new MenuItem(contextMenuAnnotation, SWT.CASCADE);
+	    item.setText("Add Track LIS");	    
+	    item.setMenu(lisMenu);    
+	    MainWindowShell.addLISMenu(shell(), lisMenu, getLisListener());
+
+	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
+	    item.setText("Add Track Video");	    
+	    item.addListener(SWT.Selection, MainWindowShell.getVideoListener());
+	    
+	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
+	    item.setText("Add Track Text");
+	    item.addListener(SWT.Selection, MainWindowShell.getTextListener());
+	    
+	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
+	    item.setText("Remove Annotation");
+	    item.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event arg0) {
+				for (TreeItem i : tree.getSelection()) {
+					Annotation a;
+					try {
+						a = (Annotation) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (a == null) {
+						System.out.println("No link betweek TreeItem and Slice");
+						return;
+					}
+			    	a.dispose();
+			    	MainWindowShell.updateTree(tree, project);
+				}
+			}
+		});
+
+/*	    // no selected items context menu
+	    final Menu contextMenuAddAnnotation = new Menu(shell(), SWT.POP_UP);
+	    item = new MenuItem(contextMenuAddAnnotation, SWT.PUSH);
+	    item.setText("Add Annotation");
+	    item.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				Project p = getCurrentProject();
+				if (p == null)
+					return;
+		    	String newAnnotationName = "Annotation " + (p.getAnnotations().size() + 1);
+		    	Annotation a = new Annotation(p, newAnnotationName);
+				p.addAnnotation(a);
+		    	MainWindowShell.updateTree(getCurrentTree(), getCurrentProject());
+			}	    	
+	    });
+	*/    
+		// Mouse listener: assign the right context menu by the item type
+	    tree.addListener(SWT.MouseDown, new Listener() {
+
+	    	public void handleEvent(Event event) {
+	    		Point point = new Point(event.x, event.y);
+	    		// System.out.println("Point: " + point.x + "," + point.y);
+	    		TreeItem item = tree.getItem(point);
+	    		if (item != null) {
+	    			// System.out.println("Mouse inside item");
+	    			for (TreeItem i : tree.getSelection()) {
+	    				Object o=i.getData();
+	    				if (o instanceof Annotation) {
+	    					tree.setMenu(contextMenuAnnotation);
+	    				} else if (o instanceof Track) {
+	    					tree.setMenu(contextMenuTrack);
+	    				} else if (o instanceof Slice) {
+	    					tree.setMenu(contextMenuSlice);
+	    				} else {
+	    	    			System.out.println("Unknown item type: no context menu");
+	    					tree.setMenu(null);
+	    				}
+	    				if (o != null)
+	    					System.out.println(i + ": " + o.getClass());
+	    			}
+	    		} else {
+	    			System.out.println("No Item");
+		         	// System.out.println("Rect: " + r.x + "," + r.y + "," + r.width + "," + r.height);
+		         	tree.setMenu(contextMenuAnnotation);
+	    		}
+	    	}
+	    });
 		
 	    // Create the panel with Tracks
 	    panel = new Canvas(shell(), SWT.NONE);
@@ -366,7 +536,7 @@ public class AnnotationShell {
 						((Slice) o).setEndTime((long)x2);
 					}
 				}
-				annotationUpdate();
+				updateTree(tree, annotation);
 				panel.redraw();
 			}
 			
@@ -479,6 +649,19 @@ public class AnnotationShell {
 	}
 
 
+	private Listener getLisListener() {
+		return new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				MenuItem item = (MenuItem) event.widget;
+		        String newTrackName = item.getText();
+		    	TrackLIS t = new TrackLIS(annotation, newTrackName);
+				annotation.addTrackLIS(t);
+				updateTree(tree, annotation);
+			}	    	
+	    };
+	}
+
 	/**
 	 * Select the item at the same mouse y position 
 	 */
@@ -506,12 +689,11 @@ public class AnnotationShell {
 	/**
 	 * Update the current shell by information inside the attached Annotation
 	 */
-	public void annotationUpdate() {
+	protected void updateTree(Tree tree2, Annotation annotation2) {
 		tree.removeAll();
 		for (Track t : annotation.getTracks()) {
 			addTrackData(tree, t);
 		}
-		
 	}
 	
 	/**

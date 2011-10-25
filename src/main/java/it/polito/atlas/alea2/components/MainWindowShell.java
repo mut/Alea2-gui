@@ -184,7 +184,7 @@ public class MainWindowShell {
 						System.out.println("No link betweek TreeItem and Slice");
 						return;
 					}
-			    	s.dispose();
+			    	s.remove();
 			    	MainWindowShell.updateTree(getCurrentTree(), getCurrentProject());
 				}
 			}
@@ -235,7 +235,7 @@ public class MainWindowShell {
 						System.out.println("No link betweek TreeItem and Track");
 						return;
 					}
-			    	t.dispose();
+			    	t.remove();
 			    	MainWindowShell.updateTree(getCurrentTree(), getCurrentProject());
 				}
 			}
@@ -247,7 +247,7 @@ public class MainWindowShell {
 	    item = new MenuItem(contextMenuAnnotation, SWT.CASCADE);
 	    item.setText("Add Track LIS");	    
 	    item.setMenu(lisMenu);    
-	    addLISMenu(lisMenu, getLisListener());
+	    addLISMenu(instance, lisMenu, getLisListener());
 
 	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
 	    item.setText("Add Track Video");	    
@@ -274,7 +274,7 @@ public class MainWindowShell {
 						System.out.println("No link betweek TreeItem and Slice");
 						return;
 					}
-			    	a.dispose();
+			    	a.remove();
 			    	MainWindowShell.updateTree(getCurrentTree(), getCurrentProject());
 				}
 			}
@@ -378,12 +378,12 @@ public class MainWindowShell {
 		return tree;
 	}
 
-	private static void addLISMenu(Menu lisMenu, Listener lisListener) {
+	static void addLISMenu(Shell instance, Menu lisMenu, Listener lisListener) {
         MenuItem item;
 		final Menu handsMenu = new Menu(instance, SWT.DROP_DOWN);
 	    item = new MenuItem(lisMenu, SWT.CASCADE);
 	    item.setText("Hands");	    
-	    item.setMenu(handsMenu);	    
+	    item.setMenu(handsMenu);
 		    item = new MenuItem(handsMenu, SWT.CASCADE);
 		    item.setText("Both Hands");
 		    item.addListener(SWT.Selection, lisListener);
@@ -433,7 +433,7 @@ public class MainWindowShell {
 	    item.addListener(SWT.Selection, lisListener);	
 	}
 
-	private static Listener getVideoListener() {
+	static Listener getVideoListener() {
 		return new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -461,7 +461,7 @@ public class MainWindowShell {
 			}
 		};
 	}
-	private static Listener getTextListener() {
+	static Listener getTextListener() {
 		return new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -488,7 +488,7 @@ public class MainWindowShell {
 	    };
 	}
 	
-	private static Listener getLisListener() {
+	static Listener getLisListener() {
 		return new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -507,9 +507,8 @@ public class MainWindowShell {
 					MenuItem item = (MenuItem) event.widget;
 			        String newTrackName = item.getText();
 			    	TrackLIS t = new TrackLIS(a, newTrackName);
-			    	addTrackData(i, t);					
-					i.setExpanded(true);
 					a.addTrackLIS(t);
+					
 				}
 			}	    	
 	    };
