@@ -48,9 +48,9 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
         	
             int hours = (int)(mins / 60);
             mins = mins - (hours * 60);
-            return String.format("%05d:%02d:%02d:%03d", hours, mins, secs, millisecs);
+            return String.format("%05dh:%02d:%02d.%03d", hours, mins, secs, millisecs);
         }
-        return String.format("%02d:%02d:%03d", mins, secs, millisecs);
+        return String.format("%02d:%02d.%03d", mins, secs, millisecs);
     }
 
     public void addVideo(TrackVideo tv) {

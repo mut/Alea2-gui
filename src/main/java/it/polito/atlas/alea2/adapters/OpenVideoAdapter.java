@@ -2,9 +2,10 @@ package it.polito.atlas.alea2.adapters;
 
 import static it.polito.atlas.alea2.components.MainWindowStatusBar.getStatusBar;
 
+import it.polito.atlas.alea2.Annotation;
 import it.polito.atlas.alea2.TrackVideo;
+import it.polito.atlas.alea2.components.AnnotationShell;
 import it.polito.atlas.alea2.components.MainWindowShell;
-import it.polito.atlas.alea2.components.SWTPlayer;
 
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -19,10 +20,9 @@ public class OpenVideoAdapter extends SelectionAdapter {
 		}
 		getStatusBar().setText(path);
 		getStatusBar().pack();
-		
-		SWTPlayer pl = new SWTPlayer();
-		pl.addVideo(new TrackVideo(null, path));
-		pl.play();
+		Annotation a = new Annotation(null, path);
+		a.addTrackVideo(new TrackVideo(a, path));
+		new AnnotationShell(a).getPlayer().open();
 	}
 
 	/*

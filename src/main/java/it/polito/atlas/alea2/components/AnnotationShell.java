@@ -151,9 +151,31 @@ public class AnnotationShell {
 		return player;
 	};
 
-    public AnnotationShell(Tree tree) {
+    public AnnotationShell(Annotation a) {
     	try {
-    		project = (Project) tree.getData();
+        	project = null;
+        	annotation = a;
+	
+			updatingScale = false;
+			player = new SWTPlayer();
+			
+			for (TrackVideo t : annotation.getTracksVideo()) {
+				System.out.println(t.getName());			
+				player.addVideo(t);
+			}
+    	} catch (Exception e) {
+    		System.out.println(e.getMessage());
+    		return;
+    	}
+    	buildShell();
+		updateTree(annotation);
+        MainWindowShell.getDiplay().timerExec(TIME_OUT, updaterRunnable);
+		shell().open();
+    }
+    
+    public AnnotationShell(Tree mainWindowTree) {
+    	try {
+    		project = (Project) mainWindowTree.getData();
 	    	annotation = project.getCurrentAnnotation();
 	
 			updatingScale = false;
@@ -168,6 +190,13 @@ public class AnnotationShell {
     		return;
     	}
 		
+    	buildShell();
+		updateTree(annotation);
+        MainWindowShell.getDiplay().timerExec(TIME_OUT, updaterRunnable);
+		shell().open();
+	}
+    
+    private void buildShell() {
 		shell = new Shell(display());
 		shell.setText("Annotation Editor");
 		shell.setSize(640, 480);
@@ -210,13 +239,6 @@ public class AnnotationShell {
 			}
 		});
 		
-		setLayout();
-		updateTree(this.tree, annotation);
-        MainWindowShell.getDiplay().timerExec(TIME_OUT, updaterRunnable);
-		shell().open();
-	}
-    
-    private void setLayout() {
 		shell().setLayout(new FormLayout());
 		Point size;
 		
@@ -353,7 +375,7 @@ public class AnnotationShell {
 						return;
 					}
 			    	s.dispose();
-			    	updateTree(tree, annotation);
+			    	updateTree(annotation);
 				}
 			}
 		});
@@ -382,7 +404,7 @@ public class AnnotationShell {
 					}
 			    	Slice s = new Slice(t, 0, 0);
 			    	t.addSlice(s);
-			    	updateTree(tree, annotation);
+			    	updateTree(annotation);
 				}
 			}	    	
 	    });
@@ -404,7 +426,7 @@ public class AnnotationShell {
 						return;
 					}
 			    	t.dispose();
-			    	updateTree(tree, annotation);
+			    	updateTree(annotation);
 				}
 			}
 		});
@@ -536,7 +558,7 @@ public class AnnotationShell {
 						((Slice) o).setEndTime((long)x2);
 					}
 				}
-				updateTree(tree, annotation);
+				updateTree(annotation);
 				panel.redraw();
 			}
 			
@@ -657,7 +679,7 @@ public class AnnotationShell {
 		        String newTrackName = item.getText();
 		    	TrackLIS t = new TrackLIS(annotation, newTrackName);
 				annotation.addTrackLIS(t);
-				updateTree(tree, annotation);
+				updateTree(annotation);
 			}	    	
 	    };
 	}
@@ -683,13 +705,15 @@ public class AnnotationShell {
 	}
 
 	public Tree getProjectTree() {
+		if (project == null)
+			return null;
 		return (Tree) project.link;
 	}
 	
 	/**
 	 * Update the current shell by information inside the attached Annotation
 	 */
-	protected void updateTree(Tree tree2, Annotation annotation2) {
+	protected void updateTree(Annotation annotation2) {
 		tree.removeAll();
 		for (Track t : annotation.getTracks()) {
 			addTrackData(tree, t);

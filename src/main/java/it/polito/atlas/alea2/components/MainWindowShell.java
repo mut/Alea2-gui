@@ -454,9 +454,8 @@ public class MainWindowShell {
 					}
 			    	String newTrackName = path;
 			    	TrackVideo t = new TrackVideo(a, newTrackName);
-			    	addTrackData(i, t);					
-					i.setExpanded(true);
 					a.addTrackVideo(t);
+					updateTree(getCurrentTree(), getCurrentProject());
 				}
 			}
 		};
@@ -480,9 +479,8 @@ public class MainWindowShell {
 					MenuItem item = (MenuItem) event.widget;
 			        String newTrackName = item.getText();
 			    	TrackText t = new TrackText(a, newTrackName);
-			    	addTrackData(i, t);					
-					i.setExpanded(true);
 					a.addTrackText(t);
+					updateTree(getCurrentTree(), getCurrentProject());
 				}
 			}	    	
 	    };
@@ -508,13 +506,15 @@ public class MainWindowShell {
 			        String newTrackName = item.getText();
 			    	TrackLIS t = new TrackLIS(a, newTrackName);
 					a.addTrackLIS(t);
-					
+					updateTree(getCurrentTree(), getCurrentProject());
 				}
 			}	    	
 	    };
 	}
 
 	public static void updateTree(Tree tree, Project p) {
+		if ((tree == null) || (p == null))
+			return;
 		tree.removeAll();
 		addProjectData(tree, p);
 	}
@@ -559,7 +559,7 @@ public class MainWindowShell {
 
 	private static TreeItem addSliceData(TreeItem tItem, Slice s, int i) {
 		TreeItem sItem = new TreeItem(tItem, SWT.NONE);
-		sItem.setText(new String[] { "slice " + i, "slice", "duration: " + s.getStartTime() + " - " + s.getEndTime()});
+		sItem.setText(new String[] { "slice " + i, "slice", "period: " + SWTPlayer.timeString(s.getStartTime()) + " - " + SWTPlayer.timeString(s.getEndTime())});
 		sItem.setData(s);
 		return sItem;
 	}

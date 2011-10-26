@@ -168,9 +168,9 @@ public class NewProjectShell {
 		shell.open();
 	}
 	public String getProjectName() {
-		return textName.getText();
+		return textName.getText().trim();
 	}
 	public String getProjectTags() {
-		return textTags.getText();
+		return textTags.getText().trim();
 	}
 }

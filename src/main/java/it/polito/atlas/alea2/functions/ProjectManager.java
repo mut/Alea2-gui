@@ -23,6 +23,10 @@ public class ProjectManager {
 		    		return false;
 		    }
 		}
-		return st.writeProject(p, true);
+		if (st.writeProject(p, true)) {
+			p.setModified(false);
+			return true;
+		}
+		return false;
 	}
 }

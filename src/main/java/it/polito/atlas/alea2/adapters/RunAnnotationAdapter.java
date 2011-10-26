@@ -22,7 +22,6 @@ public class RunAnnotationAdapter extends SelectionAdapter {
 		
 		AnnotationShell as = new AnnotationShell(tree);
 		MainWindowShell.annotationShells.add(as);
-		as.getPlayer().open();
-		
+		as.getPlayer().open();		
 	}
 }
