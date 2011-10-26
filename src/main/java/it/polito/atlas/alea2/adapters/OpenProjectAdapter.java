@@ -15,6 +15,7 @@ public class OpenProjectAdapter extends SelectionAdapter {
 		for (String s : st.getProjectNamesList()) {
 			System.out.println(s);
 			Project p=st.readProject(s);
+			p.setModified(false);
 			MainWindowShell.openProject(p);
 		}
 	}

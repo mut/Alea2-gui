@@ -2,8 +2,10 @@ package it.polito.atlas.alea2.initializer;
 
 import static it.polito.atlas.alea2.components.MainWindowShell.shell;
 import static org.eclipse.swt.SWT.PUSH;
+import it.polito.atlas.alea2.adapters.CloseProjectAdapter;
 import it.polito.atlas.alea2.adapters.NewProjectAdapter;
 import it.polito.atlas.alea2.adapters.OpenProjectAdapter;
+import it.polito.atlas.alea2.adapters.RemoveProjectAdapter;
 import it.polito.atlas.alea2.adapters.RunAnnotationAdapter;
 import it.polito.atlas.alea2.adapters.QuitAdapter;
 import it.polito.atlas.alea2.adapters.SaveProjectAdapter;
@@ -47,8 +49,10 @@ public class ToolBarInitializer extends Initializer {
 		ToolBar toolBar = new ToolBar(coolBar, SWT.FLAT);
 		
 		addTool(toolBar, "new.png", new NewProjectAdapter(), "Create a new Project");
-		addTool(toolBar, "open.png", new OpenProjectAdapter(), "Open all Projects from the current storage");
-		addTool(toolBar, "save.png", new SaveProjectAdapter(), "Save the current Project in the current storage");
+		addTool(toolBar, "open.png", new OpenProjectAdapter(), "Open all Projects from the current Storage");
+		addTool(toolBar, "save.png", new SaveProjectAdapter(), "Save the current Project in the current Storage");
+		addTool(toolBar, "close.png", new CloseProjectAdapter(), "Close the current Project");
+		addTool(toolBar, "remove.png", new RemoveProjectAdapter(), "Close and Remove the current Project from the Storage");
 		addSeparator(toolBar);
 		addTool(toolBar, "run.png", new RunAnnotationAdapter(), "Go in Annotation mode");
 		addSeparator(toolBar);
