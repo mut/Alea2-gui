@@ -14,6 +14,7 @@ import it.polito.atlas.alea2.Track;
 import it.polito.atlas.alea2.TrackLIS;
 import it.polito.atlas.alea2.TrackText;
 import it.polito.atlas.alea2.TrackVideo;
+import it.polito.atlas.alea2.adapters.NewAnnotationAdapter;
 import it.polito.atlas.alea2.db.DBStorage;
 import it.polito.atlas.alea2.functions.ProjectManager;
 import it.polito.atlas.alea2.initializer.TabFolderInitializer;
@@ -318,18 +319,7 @@ public class MainWindowShell {
 	    final Menu contextMenuAddAnnotation = new Menu(mainShell, SWT.POP_UP);
 	    item = new MenuItem(contextMenuAddAnnotation, SWT.PUSH);
 	    item.setText("Add Annotation");
-	    item.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				Project p = getCurrentProject();
-				if (p == null)
-					return;
-		    	String newAnnotationName = "Annotation " + (p.getAnnotations().size() + 1);
-		    	Annotation a = new Annotation(p, newAnnotationName);
-				p.addAnnotation(a);
-		    	MainWindowShell.updateTree(getCurrentTree(), getCurrentProject());
-			}	    	
-	    });
+	    item.addSelectionListener(new NewAnnotationAdapter());
 	    
 		// Mouse listener: assign the right context menu by the item type
 	    tree.addListener(SWT.MouseDown, new Listener() {

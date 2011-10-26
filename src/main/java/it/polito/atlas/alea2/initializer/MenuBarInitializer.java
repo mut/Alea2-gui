@@ -2,7 +2,9 @@ package it.polito.atlas.alea2.initializer;
 
 import static it.polito.atlas.alea2.components.MainWindowShell.shell;
 import static it.polito.atlas.alea2.menu.MainFileMenuFactory.addFileMenu;
-import static it.polito.atlas.alea2.menu.ViewMenuFactory.addViewMenu;
+import static it.polito.atlas.alea2.menu.MainProjectMenuFactory.addProjectMenu;
+import static it.polito.atlas.alea2.menu.MainAnnotationMenuFactory.addAnnotationMenu;
+import static it.polito.atlas.alea2.menu.MainHelpMenuFactory.addHelpMenu;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Menu;
@@ -26,7 +28,10 @@ public class MenuBarInitializer extends Initializer {
 	private static Menu createMenu() {
 		Menu menuBar = new Menu(shell(), SWT.BAR);
 		addFileMenu(menuBar);
-		addViewMenu(menuBar);
+		addProjectMenu(menuBar);
+		addAnnotationMenu(menuBar);
+		//addViewMenu(menuBar);
+		addHelpMenu(menuBar);
 		return menuBar;
 	}
 

@@ -16,7 +16,7 @@ public class ProjectManager {
 		if (st.containsProject(p.getName())) {
 			MessageBox mb = new MessageBox(MainWindowShell.shell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
 			mb.setText("Save on Storage");
-			mb.setMessage("The Project " + p.getName() + " already exist in the current Storage.\nOverwrite it?");
+			mb.setMessage("The Project '" + p.getName() + "' already exist in the current Storage.\nOverwrite it?");
 			int rc = mb.open();
 		    switch (rc) {
 		    	case SWT.YES:
@@ -37,7 +37,7 @@ public class ProjectManager {
 			if (p.isModified()) {
 				MessageBox mb = new MessageBox(shell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
 				mb.setText("Exit");
-				mb.setMessage("The Projects " + p.getName() + " has been modified.\nSave before exit?");
+				mb.setMessage("The Project '" + p.getName() + "' has been modified.\nSave before exit?");
 				switch (mb.open()) {
 					case SWT.YES:
 						ProjectManager.saveProject(MainWindowShell.getStorage(), p);
