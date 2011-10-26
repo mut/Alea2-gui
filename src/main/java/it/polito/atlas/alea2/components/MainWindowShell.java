@@ -15,11 +15,14 @@ import it.polito.atlas.alea2.TrackLIS;
 import it.polito.atlas.alea2.TrackText;
 import it.polito.atlas.alea2.TrackVideo;
 import it.polito.atlas.alea2.db.DBStorage;
+import it.polito.atlas.alea2.functions.ProjectManager;
 import it.polito.atlas.alea2.initializer.TabFolderInitializer;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Display;
@@ -40,7 +43,7 @@ import org.eclipse.swt.widgets.TreeItem;
  */
 public class MainWindowShell {
 
-	private static final Shell instance;
+	private static final Shell mainShell;
 	/**
 	 * @uml.property  name="layout"
 	 */
@@ -57,14 +60,45 @@ public class MainWindowShell {
 	private static boolean run;
 
 	public static Shell shell() {
-		return instance;
+		return mainShell;
 	}
 
 	static {
-		instance = new Shell(display());
-		instance.setText("Alea2");
+		mainShell = new Shell(display());
+		mainShell.setText("Alea2");
 		layout = new FormLayout();
-		instance.setLayout(layout);
+		mainShell.setLayout(layout);
+		mainShell.addShellListener(new ShellListener() {
+			
+			@Override
+			public void shellIconified(ShellEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void shellDeiconified(ShellEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void shellDeactivated(ShellEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void shellClosed(ShellEvent arg0) {
+				ProjectManager.beforeClose();
+			}
+			
+			@Override
+			public void shellActivated(ShellEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 	}
 
 	/**
@@ -166,7 +200,7 @@ public class MainWindowShell {
 	    // Tree pop up menus
 	    MenuItem item;
 	    // Slice context menu
-	    final Menu contextMenuSlice = new Menu(instance, SWT.POP_UP);
+	    final Menu contextMenuSlice = new Menu(mainShell, SWT.POP_UP);
 	    item = new MenuItem(contextMenuSlice, SWT.PUSH);
 	    item.setText("Remove Slice");
 	    item.addListener(SWT.Selection, new Listener() {
@@ -191,7 +225,7 @@ public class MainWindowShell {
 		});
 
 	    // Track context menu
-	    final Menu contextMenuTrack = new Menu(instance, SWT.POP_UP);
+	    final Menu contextMenuTrack = new Menu(mainShell, SWT.POP_UP);
 	    item = new MenuItem(contextMenuTrack, SWT.PUSH);
 	    item.setText("Add Slice");
 	    item.addListener(SWT.Selection, new Listener() {
@@ -242,12 +276,12 @@ public class MainWindowShell {
 		});
 
 	    // Annotation context menu
-	    final Menu contextMenuAnnotation = new Menu(instance, SWT.POP_UP);
-	    final Menu lisMenu = new Menu(instance, SWT.DROP_DOWN);
+	    final Menu contextMenuAnnotation = new Menu(mainShell, SWT.POP_UP);
+	    final Menu lisMenu = new Menu(mainShell, SWT.DROP_DOWN);
 	    item = new MenuItem(contextMenuAnnotation, SWT.CASCADE);
 	    item.setText("Add Track LIS");	    
 	    item.setMenu(lisMenu);    
-	    addLISMenu(instance, lisMenu, getLisListener());
+	    addLISMenu(mainShell, lisMenu, getLisListener());
 
 	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
 	    item.setText("Add Track Video");	    
@@ -281,7 +315,7 @@ public class MainWindowShell {
 		});
 
 	    // no selected items context menu
-	    final Menu contextMenuAddAnnotation = new Menu(instance, SWT.POP_UP);
+	    final Menu contextMenuAddAnnotation = new Menu(mainShell, SWT.POP_UP);
 	    item = new MenuItem(contextMenuAddAnnotation, SWT.PUSH);
 	    item.setText("Add Annotation");
 	    item.addListener(SWT.Selection, new Listener() {
@@ -437,10 +471,11 @@ public class MainWindowShell {
 		return new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				String path=openVideoShell();
-				if (path==null)
+				String path=openVideoShell(shell());
+				Tree tree = getCurrentTree();
+				if ((path == null) || (tree  == null))
 					return;
-				for (TreeItem i : getCurrentTree().getSelection()) {
+				for (TreeItem i : tree.getSelection()) {
 					Annotation a;
 					try {
 						a = (Annotation) i.getData();
@@ -455,7 +490,7 @@ public class MainWindowShell {
 			    	String newTrackName = path;
 			    	TrackVideo t = new TrackVideo(a, newTrackName);
 					a.addTrackVideo(t);
-					updateTree(getCurrentTree(), getCurrentProject());
+					updateTree(tree, a.getParent());
 				}
 			}
 		};
@@ -464,7 +499,10 @@ public class MainWindowShell {
 		return new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				for (TreeItem i : getCurrentTree().getSelection()) {
+				Tree tree = getCurrentTree();
+				if (tree  == null)
+					return;
+				for (TreeItem i : tree.getSelection()) {
 					Annotation a;
 					try {
 						a = (Annotation) i.getData();
@@ -480,7 +518,7 @@ public class MainWindowShell {
 			        String newTrackName = item.getText();
 			    	TrackText t = new TrackText(a, newTrackName);
 					a.addTrackText(t);
-					updateTree(getCurrentTree(), getCurrentProject());
+					updateTree(tree, a.getParent());
 				}
 			}	    	
 	    };
@@ -490,7 +528,10 @@ public class MainWindowShell {
 		return new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				for (TreeItem i : getCurrentTree().getSelection()) {
+				Tree tree = getCurrentTree();
+				if (tree  == null)
+					return;
+				for (TreeItem i : tree.getSelection()) {
 					Annotation a;
 					try {
 						a = (Annotation) i.getData();
@@ -506,7 +547,7 @@ public class MainWindowShell {
 			        String newTrackName = item.getText();
 			    	TrackLIS t = new TrackLIS(a, newTrackName);
 					a.addTrackLIS(t);
-					updateTree(getCurrentTree(), getCurrentProject());
+					updateTree(tree, a.getParent());
 				}
 			}	    	
 	    };
@@ -564,8 +605,8 @@ public class MainWindowShell {
 		return sItem;
 	}
 
-	public static String openVideoShell() {
-		FileDialog dialog = new FileDialog(shell(), OPEN);
+	public static String openVideoShell(Shell shell) {
+		FileDialog dialog = new FileDialog(shell, OPEN);
 		
 		String[] filterNames = new String[] { "Video Files (*.avi, *.mov, *.mpg, *.mp4)", "All Files (*)"};
 		String[] filterExtensions = new String[] { "*.avi; *.mov; *.mpg; *.mp4", "*" };
@@ -579,12 +620,12 @@ public class MainWindowShell {
 
 	public static void runShell() {
 		if (!run) {
-			instance.setSize(640, 480);
-			instance.setLocation(SWT.DEFAULT, SWT.DEFAULT);
+			mainShell.setSize(640, 480);
+			mainShell.setLocation(SWT.DEFAULT, SWT.DEFAULT);
 
-			instance.open();
+			mainShell.open();
 
-			while (!instance.isDisposed()) {
+			while (!mainShell.isDisposed()) {
 				if (!display().readAndDispatch()) {
 					display().sleep();
 				}

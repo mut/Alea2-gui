@@ -9,6 +9,7 @@ import it.polito.atlas.alea2.Project;
 import it.polito.atlas.alea2.Slice;
 import it.polito.atlas.alea2.Track;
 import it.polito.atlas.alea2.TrackLIS;
+import it.polito.atlas.alea2.TrackText;
 import it.polito.atlas.alea2.TrackVideo;
 
 import org.eclipse.swt.SWT;
@@ -50,7 +51,6 @@ import org.eclipse.swt.widgets.TreeItem;
 public class AnnotationShell {
 	private Shell shell;
 	/**
-	 * @uml.property  name="player"
 	 * @uml.associationEnd  
 	 */
 	private SWTPlayer player;
@@ -168,7 +168,7 @@ public class AnnotationShell {
     		return;
     	}
     	buildShell();
-		updateTree(annotation);
+		updateTree();
         MainWindowShell.getDiplay().timerExec(TIME_OUT, updaterRunnable);
 		shell().open();
     }
@@ -191,7 +191,7 @@ public class AnnotationShell {
     	}
 		
     	buildShell();
-		updateTree(annotation);
+		updateTree();
         MainWindowShell.getDiplay().timerExec(TIME_OUT, updaterRunnable);
 		shell().open();
 	}
@@ -375,7 +375,7 @@ public class AnnotationShell {
 						return;
 					}
 			    	s.dispose();
-			    	updateTree(annotation);
+			    	updateTree();
 				}
 			}
 		});
@@ -404,7 +404,7 @@ public class AnnotationShell {
 					}
 			    	Slice s = new Slice(t, 0, 0);
 			    	t.addSlice(s);
-			    	updateTree(annotation);
+			    	updateTree();
 				}
 			}	    	
 	    });
@@ -426,7 +426,7 @@ public class AnnotationShell {
 						return;
 					}
 			    	t.dispose();
-			    	updateTree(annotation);
+			    	updateTree();
 				}
 			}
 		});
@@ -441,11 +441,11 @@ public class AnnotationShell {
 
 	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
 	    item.setText("Add Track Video");	    
-	    item.addListener(SWT.Selection, MainWindowShell.getVideoListener());
+	    item.addListener(SWT.Selection, getVideoListener());
 	    
 	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
 	    item.setText("Add Track Text");
-	    item.addListener(SWT.Selection, MainWindowShell.getTextListener());
+	    item.addListener(SWT.Selection, getTextListener());
 	    
 	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
 	    item.setText("Remove Annotation");
@@ -533,6 +533,8 @@ public class AnnotationShell {
 			
 			@Override
 			public void mouseUp(MouseEvent arg0) {
+				if (arg0.button != 1)
+					return;
 				mouseDown=false;
 				xMouse=arg0.x;
 				
@@ -558,13 +560,15 @@ public class AnnotationShell {
 						((Slice) o).setEndTime((long)x2);
 					}
 				}
-				updateTree(annotation);
+				updateTree();
 				panel.redraw();
 			}
 			
 			@Override
 			public void mouseDown(MouseEvent arg0) {
-				if ((arg0.stateMask & SWT.BUTTON1) != 0)
+				System.out.println(arg0.button + " - " + arg0.stateMask);
+				//if ((arg0.stateMask & SWT.BUTTON1) != 0)
+				if (arg0.button != 1)
 					return;
 				mouseDown=true;
 				xMouseDown=arg0.x;
@@ -594,6 +598,7 @@ public class AnnotationShell {
 			
 			@Override
 			public void mouseMove(MouseEvent arg0) {
+				xMouse=arg0.x;
 				if (mouseDown) {
 	       			long duration = player.getEndTime();
 	       			if (duration==0)
@@ -602,7 +607,6 @@ public class AnnotationShell {
 					if (clientArea.width==0)
 						return;
 					
-					xMouse=arg0.x;
 					player.seek(xMouse*player.maxDuration/clientArea.width);
 					panel.redraw();
 				}				
@@ -671,6 +675,37 @@ public class AnnotationShell {
 	}
 
 
+	Listener getVideoListener() {
+		return new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (tree  == null)
+					return;
+				String path=MainWindowShell.openVideoShell(shell());
+				if (path  == null)
+					return;
+		    	TrackVideo t = new TrackVideo(annotation, path);
+				annotation.addTrackVideo(t);
+				updateTree();
+				player.open(t);
+			}
+		};
+	}
+	
+	Listener getTextListener() {
+		return new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (tree  == null)
+					return;
+		        String newTrackName = "Text track";
+		    	TrackText t = new TrackText(annotation, newTrackName);
+				annotation.addTrackText(t);
+				updateTree();
+			}	    	
+	    };
+	}
+	
 	private Listener getLisListener() {
 		return new Listener() {
 			@Override
@@ -679,7 +714,7 @@ public class AnnotationShell {
 		        String newTrackName = item.getText();
 		    	TrackLIS t = new TrackLIS(annotation, newTrackName);
 				annotation.addTrackLIS(t);
-				updateTree(annotation);
+				updateTree();
 			}	    	
 	    };
 	}
@@ -713,13 +748,13 @@ public class AnnotationShell {
 	/**
 	 * Update the current shell by information inside the attached Annotation
 	 */
-	protected void updateTree(Annotation annotation2) {
+	protected void updateTree() {
 		tree.removeAll();
 		for (Track t : annotation.getTracks()) {
 			addTrackData(tree, t);
 		}
 	}
-	
+
 	/**
 	 * Insert a Track inside the Tree
 	 * @param tree The Tree

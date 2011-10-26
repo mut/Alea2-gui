@@ -14,7 +14,7 @@ public class OpenVideoAdapter extends SelectionAdapter {
 
 	@Override
 	public void widgetSelected(SelectionEvent e) {
-		String path = MainWindowShell.openVideoShell();
+		String path = MainWindowShell.openVideoShell(MainWindowShell.shell());
 		if (path == null) {
 			return;
 		}

@@ -193,17 +193,22 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 	public void open(TrackVideo tv) {
 		int i=0;
 		boolean newTrack=true;
+		Shell s = null;
 		for (TrackVideo t : tracks) {
 			if (t.equals(tv)) {
-				if (shells.get(i)==null)
+				s = shells.get(i);
+				if (s == null)
 					createVideoWindow(tv.getName(), i);
-					newTrack=false;
-					break;
+				s.open();
+				newTrack=false;
+				break;
 			}
 		}
 		if (newTrack) {
 			addVideo(tv);
+			s = shells.get(shells.size()-1);
 		}
+		s.open();
 		seek(getPosition());
 	}
 

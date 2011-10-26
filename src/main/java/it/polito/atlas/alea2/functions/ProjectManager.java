@@ -1,5 +1,7 @@
 package it.polito.atlas.alea2.functions;
 
+import static it.polito.atlas.alea2.components.MainWindowShell.shell;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 
@@ -14,7 +16,7 @@ public class ProjectManager {
 		if (st.containsProject(p.getName())) {
 			MessageBox mb = new MessageBox(MainWindowShell.shell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
 			mb.setText("Save on Storage");
-			mb.setMessage("The prject already exist in current Storage, would you overwrite?");
+			mb.setMessage("The Project " + p.getName() + " already exist in the current Storage.\nOverwrite it?");
 			int rc = mb.open();
 		    switch (rc) {
 		    	case SWT.YES:
@@ -28,5 +30,20 @@ public class ProjectManager {
 			return true;
 		}
 		return false;
+	}
+
+	public static void beforeClose() {
+		for (Project p : MainWindowShell.getProjects()) {
+			if (p.isModified()) {
+				MessageBox mb = new MessageBox(shell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+				mb.setText("Exit");
+				mb.setMessage("The Projects " + p.getName() + " has been modified.\nSave before exit?");
+				switch (mb.open()) {
+					case SWT.YES:
+						ProjectManager.saveProject(MainWindowShell.getStorage(), p);
+						break;
+				}
+			}
+		}
 	}
 }

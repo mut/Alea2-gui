@@ -9,7 +9,9 @@ public class QuitAdapter extends SelectionAdapter {
 
 	@Override
 	public void widgetSelected(SelectionEvent e) {
-		shell().getDisplay().dispose();
+		//ProjectManager.beforeClose();
+		shell().close();
+		//shell().getDisplay().dispose();
 		System.exit(0);
 	}
 }
