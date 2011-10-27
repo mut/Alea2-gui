@@ -23,12 +23,12 @@ public class MainProjectMenuFactory {
 
 	private static Menu createProjectMenu() {
 		Menu projectMenu = new Menu(shell(), SWT.DROP_DOWN);
-		createItem(projectMenu, "&New Project", new NewProjectAdapter());
-		createItem(projectMenu, "&Open Project...", new OpenProjectAdapter());
+		createItem(projectMenu, "&New Project", "new.png", new NewProjectAdapter());
+		createItem(projectMenu, "&Open Project...", "open.png", new OpenProjectAdapter());
 		createItem(projectMenu, "&Rename Project / Modify tags...", new RenameProjectAdapter());
-		createItem(projectMenu, "&Close Project", new CloseProjectAdapter());
+		createItem(projectMenu, "&Close Project", "close.png", new CloseProjectAdapter());
 		createSeparatorItem(projectMenu);
-		createItem(projectMenu, "&Remove Project", new RemoveProjectAdapter());
+		createItem(projectMenu, "&Remove Project", "remove.png", new RemoveProjectAdapter());
 		return projectMenu;
 	}
 

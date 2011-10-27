@@ -54,7 +54,7 @@ public class ToolBarInitializer extends Initializer {
 		addTool(toolBar, "close.png", new CloseProjectAdapter(), "Close the current Project");
 		addTool(toolBar, "remove.png", new RemoveProjectAdapter(), "Close and Remove the current Project from the Storage");
 		addSeparator(toolBar);
-		addTool(toolBar, "run.png", new RunAnnotationAdapter(), "Go in Annotation mode");
+		addTool(toolBar, "run.png", new RunAnnotationAdapter(), "Edit the current Annotation");
 		addSeparator(toolBar);
 		addTool(toolBar, "quit.png", new QuitAdapter(), "Exit from Alea");
 		toolBar.pack();

@@ -22,7 +22,7 @@ public class MainFileMenuFactory {
 		Menu fileMenu = new Menu(shell(), SWT.DROP_DOWN);
 		createItem(fileMenu, "&Play a video file...", new OpenVideoAdapter());
 		createSeparatorItem(fileMenu);
-		createItem(fileMenu, "&Exit", new QuitAdapter());
+		createItem(fileMenu, "&Exit", "quit.png", new QuitAdapter());
 		return fileMenu;
 	}
 

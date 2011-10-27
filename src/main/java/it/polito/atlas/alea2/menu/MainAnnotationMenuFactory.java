@@ -22,7 +22,7 @@ public class MainAnnotationMenuFactory {
 		Menu annotationMenu = new Menu(shell(), SWT.DROP_DOWN);
 		createItem(annotationMenu, "&Add Annotation", new NewAnnotationAdapter());
 		createSeparatorItem(annotationMenu);
-		createItem(annotationMenu, "&Play Annotation", new RunAnnotationAdapter());
+		createItem(annotationMenu, "&Edit Annotation", "run.png", new RunAnnotationAdapter());
 		return annotationMenu;
 	}
 
