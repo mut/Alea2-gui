@@ -3,6 +3,9 @@ package it.polito.atlas.alea2.components;
 import static it.polito.atlas.alea2.components.DisplaySingleton.display;
 import static org.eclipse.swt.SWT.OPEN;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +21,7 @@ import it.polito.atlas.alea2.adapters.NewAnnotationAdapter;
 import it.polito.atlas.alea2.db.DBStorage;
 import it.polito.atlas.alea2.functions.ProjectManager;
 import it.polito.atlas.alea2.initializer.TabFolderInitializer;
+import it.polito.atlas.alea2.tule.TuleClient;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -276,6 +280,76 @@ public class MainWindowShell {
 			}
 		});
 
+	    // Track context menu
+	    final Menu contextMenuTrackText = new Menu(mainShell, SWT.POP_UP);
+	    item = new MenuItem(contextMenuTrackText, SWT.PUSH);
+	    item.setText("Add Lemmas");
+	    item.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				for (TreeItem i : tree.getSelection()) {
+					TrackText t;
+					try {
+						t = (TrackText) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (t == null) {
+						System.out.println("No link betweek TreeItem and Track");
+						return;
+					}
+			    	t.addLemmas(t.getName());
+			    	MainWindowShell.updateTree(getCurrentTree(), getCurrentProject());
+				}
+			}	    	
+	    });
+	    item = new MenuItem(contextMenuTrackText, SWT.PUSH);
+	    item.setText("Extract Lemmas throught Tule");
+	    item.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				for (TreeItem i : tree.getSelection()) {
+					TrackText t;
+					try {
+						t = (TrackText) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (t == null) {
+						System.out.println("No link betweek TreeItem and Track");
+						return;
+					}
+			    	TuleClient tule = new TuleClient();
+			    	t.addTuleLemmas(t.getName(), tule);
+			    	MainWindowShell.updateTree(getCurrentTree(), getCurrentProject());
+				}
+			}	    	
+	    });
+	    item = new MenuItem(contextMenuTrackText, SWT.PUSH);
+	    item.setText("Remove Track");
+	    item.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event arg0) {
+				for (TreeItem i : tree.getSelection()) {
+					Track t;
+					try {
+						t = (Track) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (t == null) {
+						System.out.println("No link betweek TreeItem and Track");
+						return;
+					}
+			    	t.remove();
+			    	MainWindowShell.updateTree(getCurrentTree(), getCurrentProject());
+				}
+			}
+		});
+
 	    // Annotation context menu
 	    final Menu contextMenuAnnotation = new Menu(mainShell, SWT.POP_UP);
 	    final Menu lisMenu = new Menu(mainShell, SWT.DROP_DOWN);
@@ -288,9 +362,11 @@ public class MainWindowShell {
 	    item.setText("Add Track Video");	    
 	    item.addListener(SWT.Selection, getVideoListener());
 	    
-	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
-	    item.setText("Add Track Text");
-	    item.addListener(SWT.Selection, getTextListener());
+	    final Menu textMenu = new Menu(mainShell, SWT.DROP_DOWN);
+	    item = new MenuItem(contextMenuAnnotation, SWT.CASCADE);
+	    item.setText("Add Track Text");	    
+	    item.setMenu(textMenu);    
+	    addTextMenu(mainShell, textMenu);
 	    
 	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
 	    item.setText("Remove Annotation");
@@ -334,6 +410,8 @@ public class MainWindowShell {
 	    				Object o=i.getData();
 	    				if (o instanceof Annotation) {
 	    					tree.setMenu(contextMenuAnnotation);
+	    				} else if (o instanceof TrackText) {
+	    					tree.setMenu(contextMenuTrackText);
 	    				} else if (o instanceof Track) {
 	    					tree.setMenu(contextMenuTrack);
 	    				} else if (o instanceof Slice) {
@@ -402,6 +480,16 @@ public class MainWindowShell {
 		return tree;
 	}
 
+	static void addTextMenu(Shell instance, Menu textMenu) {
+        MenuItem item;
+	    item = new MenuItem(textMenu, SWT.CASCADE);
+	    item.setText("Open from file...");
+	    item.addListener(SWT.Selection, getTextListener());
+	    item = new MenuItem(textMenu, SWT.CASCADE);
+	    item.setText("Insert a text...");
+	    item.addListener(SWT.Selection, createTextShell());
+	}
+
 	static void addLISMenu(Shell instance, Menu lisMenu, Listener lisListener) {
         MenuItem item;
 		final Menu handsMenu = new Menu(instance, SWT.DROP_DOWN);
@@ -457,6 +545,9 @@ public class MainWindowShell {
 	    item.addListener(SWT.Selection, lisListener);	
 	}
 
+	/**
+	 * @return a Listener that open a FileChooserShell and adds the video to the current annotation
+	 */
 	static Listener getVideoListener() {
 		return new Listener() {
 			@Override
@@ -485,7 +576,77 @@ public class MainWindowShell {
 			}
 		};
 	}
+	
+	/**
+	 * @return a Listener that open a FileChooserShell and adds the text to the current annotation
+	 */
 	static Listener getTextListener() {
+		return new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				String path=openTextShell(shell());
+				Tree tree = getCurrentTree();
+				if ((path == null) || (tree  == null))
+					return;
+				for (TreeItem i : tree.getSelection()) {
+					Annotation a;
+					try {
+						a = (Annotation) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (a == null) {
+						System.out.println("No link betweek TreeItem and Annotation");
+						return;
+					}
+					//MenuItem item = (MenuItem) event.widget;
+					//String newTrackName = item.getText();
+			    	//TuleClient tule=new TuleClient();
+			        //String newTrackName = tule.submitText();//item.getText();
+			    	String text=getTextFile(path);
+			    	if (text==null)
+			    		return;
+
+					a.addTextTrack(text);
+					updateTree(tree, a.getParent());
+				}
+			}	    	
+	    };
+	}
+	
+	static String getTextFile(String path) {
+    	FileInputStream fis;
+    	try {
+			fis = new FileInputStream(path);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}
+		String output="";
+		int bufLen=1024;
+		byte[] buf=new byte[bufLen];
+		int count=0;
+		int len=0;
+		try {
+			while ((len=fis.read(buf, 0, bufLen))>0) {
+				String tmp = new String (buf);
+				output+=tmp.substring(0, len);
+				count+=len;
+			} 
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		if (count==0)
+			return null;
+		return output;
+	}
+
+	/**
+	 * @return a Listener that open a FileChooserShell and adds the text to the current annotation
+	 */
+	static Listener createTextShell() {
 		return new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -504,16 +665,12 @@ public class MainWindowShell {
 						System.out.println("No link betweek TreeItem and Annotation");
 						return;
 					}
-					MenuItem item = (MenuItem) event.widget;
-			        String newTrackName = item.getText();
-			    	TrackText t = new TrackText(a, newTrackName);
-					a.addTrackText(t);
-					updateTree(tree, a.getParent());
+					new CreateTextShell(getCurrentTree(), a);
 				}
 			}	    	
 	    };
 	}
-	
+
 	static Listener getLisListener() {
 		return new Listener() {
 			@Override
@@ -568,29 +725,53 @@ public class MainWindowShell {
 		TreeItem aItem = new TreeItem(tree, SWT.NONE);
 		aItem.setText(new String[] { a.getName(), "annotation", String.valueOf(a.getTracks().size()) + " tracks"});
 		aItem.setData(a);
+		a.link=aItem;
 		for (Track t : a.getTracks()) {
-			addTrackData(aItem, t);
+			addTrackData(aItem, t, true);
 		}
 		aItem.setExpanded(true);
 		return aItem;
 	}
 
-	private static TreeItem addTrackData(TreeItem aItem, Track t) {
+	/**
+	 * Insert a Track inside the Tree
+	 * @param aItem The Annotation TreeItem
+	 * @param t The Track
+	 * @param link if required link the Track to the TreeItem
+	 * @return
+	 */
+	private static TreeItem addTrackData(TreeItem aItem, Track t, boolean link) {
     	TreeItem tItem = new TreeItem(aItem, SWT.NONE);
 		tItem.setText(new String[] { t.getName(), t.getTypeString() + " track", String.valueOf(t.getSlices().size()) + " slices"});
 		tItem.setData(t);
-    	t.link = tItem;
+		if (link)
+			t.link = tItem;
 		int i=0;
 		for (Slice s : t.getSlices()) {
-			addSliceData(tItem, s, ++i);
+			addSliceData(tItem, s, ++i, link);
 		}
 		tItem.setExpanded(true);
 		return tItem;
 	}
 
-	private static TreeItem addSliceData(TreeItem tItem, Slice s, int i) {
+	/**
+	 * Append a Slice to the Track inside the Tree
+	 * @param tItem The Track TreeItem
+	 * @param s The Slice
+	 * @param i A sequence number for the Track
+	 * @param link if required link the Track to the TreeItem
+	 * @return
+	 */
+	static TreeItem addSliceData(TreeItem tItem, Slice s, int i, boolean link) {
+		String text="slice " + i;
+		Object o=s.getInfo();
+		if (o instanceof String) {
+			text+=" [" + (String)o + "]";
+		}
 		TreeItem sItem = new TreeItem(tItem, SWT.NONE);
-		sItem.setText(new String[] { "slice " + i, "slice", "period: " + SWTPlayer.timeString(s.getStartTime()) + " - " + SWTPlayer.timeString(s.getEndTime())});
+		if (link)
+			s.link=sItem;
+		sItem.setText(new String[] { text, "slice", "period: " + SWTPlayer.timeString(s.getStartTime()) + " - " + SWTPlayer.timeString(s.getEndTime())});
 		sItem.setData(s);
 		return sItem;
 	}
@@ -600,6 +781,19 @@ public class MainWindowShell {
 		
 		String[] filterNames = new String[] { "Video Files (*.avi, *.mov, *.mpg, *.mp4)", "All Files (*)"};
 		String[] filterExtensions = new String[] { "*.avi; *.mov; *.mpg; *.mp4", "*" };
+
+		dialog.setFilterNames(filterNames);
+		dialog.setFilterExtensions(filterExtensions);
+
+		String path = dialog.open();
+		return path;
+	}
+
+	public static String openTextShell(Shell shell) {
+		FileDialog dialog = new FileDialog(shell, OPEN);
+		
+		String[] filterNames = new String[] { "Text Files (*.txt, *.log)", "All Files (*)"};
+		String[] filterExtensions = new String[] { "*.txt; *.log", "*" };
 
 		dialog.setFilterNames(filterNames);
 		dialog.setFilterExtensions(filterExtensions);

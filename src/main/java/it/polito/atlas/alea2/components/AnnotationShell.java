@@ -11,6 +11,7 @@ import it.polito.atlas.alea2.Track;
 import it.polito.atlas.alea2.TrackLIS;
 import it.polito.atlas.alea2.TrackText;
 import it.polito.atlas.alea2.TrackVideo;
+import it.polito.atlas.alea2.tule.TuleClient;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
@@ -56,6 +57,9 @@ public class AnnotationShell {
 	private SWTPlayer player;
 	private Annotation annotation;
 	private Project project;
+	public AnnotationShell instance() {
+		return this;		
+	}
 
 	static final String name="Annotation Editor";
 	
@@ -374,7 +378,7 @@ public class AnnotationShell {
 						System.out.println("No link betweek TreeItem and Slice");
 						return;
 					}
-			    	s.dispose();
+			    	s.remove();
 			    	updateTree();
 				}
 			}
@@ -425,7 +429,77 @@ public class AnnotationShell {
 						System.out.println("No link betweek TreeItem and Track");
 						return;
 					}
-			    	t.dispose();
+			    	t.remove();
+			    	updateTree();
+				}
+			}
+		});
+
+	    // Track Text context menu
+	    final Menu contextMenuTrackText = new Menu(shell(), SWT.POP_UP);
+	    item = new MenuItem(contextMenuTrackText, SWT.PUSH);
+	    item.setText("Add Lemmas");
+	    item.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				for (TreeItem i : tree.getSelection()) {
+					TrackText t;
+					try {
+						t = (TrackText) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (t == null) {
+						System.out.println("No link betweek TreeItem and Track");
+						return;
+					}
+			    	t.addLemmas(t.getName());
+				}
+				updateTree();
+			}	    	
+	    });
+	    item = new MenuItem(contextMenuTrackText, SWT.PUSH);
+	    item.setText("Extract Lemmas throught Tule");
+	    item.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				for (TreeItem i : tree.getSelection()) {
+					TrackText t;
+					try {
+						t = (TrackText) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (t == null) {
+						System.out.println("No link betweek TreeItem and Track");
+						return;
+					}
+			    	TuleClient tule = new TuleClient();
+			    	t.addTuleLemmas(t.getName(), tule);
+				}
+				updateTree();
+			}	    	
+	    });
+	    item = new MenuItem(contextMenuTrackText, SWT.PUSH);
+	    item.setText("Remove Track");
+	    item.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event arg0) {
+				for (TreeItem i : tree.getSelection()) {
+					Track t;
+					try {
+						t = (Track) i.getData();
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+						return;
+					}
+					if (t == null) {
+						System.out.println("No link betweek TreeItem and Track");
+						return;
+					}
+			    	t.remove();
 			    	updateTree();
 				}
 			}
@@ -435,58 +509,20 @@ public class AnnotationShell {
 	    final Menu contextMenuAnnotation = new Menu(shell(), SWT.POP_UP);
 	    final Menu lisMenu = new Menu(shell(), SWT.DROP_DOWN);
 	    item = new MenuItem(contextMenuAnnotation, SWT.CASCADE);
-	    item.setText("Add Track LIS");	    
-	    item.setMenu(lisMenu);    
-	    MainWindowShell.addLISMenu(shell(), lisMenu, getLisListener());
+	    item.setText("Add Track LIS");
+	    item.setMenu(lisMenu);
+	    addLISMenu(shell(), lisMenu, getLisListener());
 
 	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
-	    item.setText("Add Track Video");	    
+	    item.setText("Add Track Video");
 	    item.addListener(SWT.Selection, getVideoListener());
 	    
-	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
+	    final Menu textMenu = new Menu(shell(), SWT.DROP_DOWN);
+	    item = new MenuItem(contextMenuAnnotation, SWT.CASCADE);
 	    item.setText("Add Track Text");
-	    item.addListener(SWT.Selection, getTextListener());
+	    item.setMenu(textMenu);
+	    addTextMenu(shell(), textMenu);
 	    
-	    item = new MenuItem(contextMenuAnnotation, SWT.PUSH);
-	    item.setText("Remove Annotation");
-	    item.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event arg0) {
-				for (TreeItem i : tree.getSelection()) {
-					Annotation a;
-					try {
-						a = (Annotation) i.getData();
-					} catch (Exception e) {
-						System.out.println(e.getMessage());
-						return;
-					}
-					if (a == null) {
-						System.out.println("No link betweek TreeItem and Slice");
-						return;
-					}
-			    	a.dispose();
-			    	MainWindowShell.updateTree(tree, project);
-				}
-			}
-		});
-
-/*	    // no selected items context menu
-	    final Menu contextMenuAddAnnotation = new Menu(shell(), SWT.POP_UP);
-	    item = new MenuItem(contextMenuAddAnnotation, SWT.PUSH);
-	    item.setText("Add Annotation");
-	    item.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				Project p = getCurrentProject();
-				if (p == null)
-					return;
-		    	String newAnnotationName = "Annotation " + (p.getAnnotations().size() + 1);
-		    	Annotation a = new Annotation(p, newAnnotationName);
-				p.addAnnotation(a);
-		    	MainWindowShell.updateTree(getCurrentTree(), getCurrentProject());
-			}	    	
-	    });
-	*/    
 		// Mouse listener: assign the right context menu by the item type
 	    tree.addListener(SWT.MouseDown, new Listener() {
 
@@ -500,6 +536,8 @@ public class AnnotationShell {
 	    				Object o=i.getData();
 	    				if (o instanceof Annotation) {
 	    					tree.setMenu(contextMenuAnnotation);
+	    				} else if (o instanceof TrackText) {
+	    					tree.setMenu(contextMenuTrackText);
 	    				} else if (o instanceof Track) {
 	    					tree.setMenu(contextMenuTrack);
 	    				} else if (o instanceof Slice) {
@@ -675,6 +713,10 @@ public class AnnotationShell {
 	}
 
 
+	private void addLISMenu(Shell shell2, Menu lisMenu, Listener lisListener) {
+		MainWindowShell.addLISMenu(shell(), lisMenu, getLisListener());
+	}
+
 	Listener getVideoListener() {
 		return new Listener() {
 			@Override
@@ -692,15 +734,39 @@ public class AnnotationShell {
 		};
 	}
 	
+	void addTextMenu(Shell instance, Menu textMenu) {
+        MenuItem item;
+	    item = new MenuItem(textMenu, SWT.CASCADE);
+	    item.setText("Open from file...");
+	    item.addListener(SWT.Selection, getTextListener());
+	    item = new MenuItem(textMenu, SWT.CASCADE);
+	    item.setText("Insert a text...");
+	    item.addListener(SWT.Selection, createTextShellListener());
+	}
+
 	Listener getTextListener() {
 		return new Listener() {
 			@Override
 			public void handleEvent(Event event) {
 				if (tree  == null)
 					return;
-		        String newTrackName = "Text track";
-		    	TrackText t = new TrackText(annotation, newTrackName);
-				annotation.addTrackText(t);
+				String path=MainWindowShell.openTextShell(shell());
+		    	String text=MainWindowShell.getTextFile(path);
+		    	if (text==null)
+		    		return;
+				annotation.addTextTrack(text);
+				updateTree();
+			}	    	
+	    };
+	}
+	
+	Listener createTextShellListener() {
+		return new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (tree  == null)
+					return;
+				new CreateTextShell(instance(), annotation);
 				updateTree();
 			}	    	
 	    };
@@ -768,24 +834,10 @@ public class AnnotationShell {
     	//t.link = tItem;
 		int i=0;
 		for (Slice s : t.getSlices()) {
-			addSliceData(tItem, s, ++i);
+			MainWindowShell.addSliceData(tItem, s, ++i, false);
 		}
 		tItem.setExpanded(true);
 		return tItem;
-	}
-
-	/**
-	 * Append a Slice to the Track inside the Tree
-	 * @param tree The Track TreeItem
-	 * @param t The Slice
-	 * @param i A sequence number for the Track
-	 * @return
-	 */
-	private static TreeItem addSliceData(TreeItem tItem, Slice s, int i) {
-		TreeItem sItem = new TreeItem(tItem, SWT.NONE);
-		sItem.setText(new String[] { "slice " + i, "slice", "duration: " + s.getStartTime() + " - " + s.getEndTime()});
-		sItem.setData(s);
-		return sItem;
 	}
 
 	private void addTool(ToolBar toolBar, String icon, SelectionAdapter adapter, String toolTip) {
