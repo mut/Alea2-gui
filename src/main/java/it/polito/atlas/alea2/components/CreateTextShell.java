@@ -86,7 +86,7 @@ public class CreateTextShell {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				text = textName.getText();
-				a.addTextTrack(text);
+				a.addTrackText(text);
 				if (sender instanceof Tree) {
 					Tree tree = (Tree) sender;
 					Project p = (Project) tree.getData();

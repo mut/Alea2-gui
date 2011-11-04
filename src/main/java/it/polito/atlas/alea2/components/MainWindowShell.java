@@ -11,6 +11,7 @@ import java.util.List;
 
 import it.polito.atlas.alea2.Annotation;
 import it.polito.atlas.alea2.Project;
+import it.polito.atlas.alea2.Property;
 import it.polito.atlas.alea2.Slice;
 import it.polito.atlas.alea2.Storage;
 import it.polito.atlas.alea2.Track;
@@ -283,7 +284,7 @@ public class MainWindowShell {
 	    // Track context menu
 	    final Menu contextMenuTrackText = new Menu(mainShell, SWT.POP_UP);
 	    item = new MenuItem(contextMenuTrackText, SWT.PUSH);
-	    item.setText("Add Lemmas");
+	    item.setText("Generate slices from text");
 	    item.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -299,7 +300,7 @@ public class MainWindowShell {
 						System.out.println("No link betweek TreeItem and Track");
 						return;
 					}
-			    	t.addLemmas(t.getName());
+			    	t.addWords(t.getName());
 			    	MainWindowShell.updateTree(getCurrentTree(), getCurrentProject());
 				}
 			}	    	
@@ -608,7 +609,7 @@ public class MainWindowShell {
 			    	if (text==null)
 			    		return;
 
-					a.addTextTrack(text);
+					a.addTrackText(text);
 					updateTree(tree, a.getParent());
 				}
 			}	    	
@@ -764,7 +765,7 @@ public class MainWindowShell {
 	 */
 	static TreeItem addSliceData(TreeItem tItem, Slice s, int i, boolean link) {
 		String text="slice " + i;
-		Object o=s.getInfo();
+		Object o=s.getName();
 		if (o instanceof String) {
 			text+=" [" + (String)o + "]";
 		}
@@ -773,7 +774,29 @@ public class MainWindowShell {
 			s.link=sItem;
 		sItem.setText(new String[] { text, "slice", "period: " + SWTPlayer.timeString(s.getStartTime()) + " - " + SWTPlayer.timeString(s.getEndTime())});
 		sItem.setData(s);
+		int j=0;
+		for (Property p : s.getProperties()) {
+			addPropertiesData(sItem, p, ++j, link);
+		}
 		return sItem;
+	}
+
+	/**
+	 * Append a Slice to the Track inside the Tree
+	 * @param tItem The Track TreeItem
+	 * @param p The Slice
+	 * @param i A sequence number for the Track
+	 * @param link if required link the Track to the TreeItem
+	 * @return
+	 */
+	static TreeItem addPropertiesData(TreeItem sItem, Property p, int i, boolean link) {
+		String text=p.getName() + " = " + p.getValue();
+		TreeItem pItem = new TreeItem(sItem, SWT.NONE);
+		if (link)
+			p.link=pItem;
+		pItem.setText(new String[] { text, "property", ""});
+		pItem.setData(p);
+		return pItem;
 	}
 
 	public static String openVideoShell(Shell shell) {

@@ -438,7 +438,7 @@ public class AnnotationShell {
 	    // Track Text context menu
 	    final Menu contextMenuTrackText = new Menu(shell(), SWT.POP_UP);
 	    item = new MenuItem(contextMenuTrackText, SWT.PUSH);
-	    item.setText("Add Lemmas");
+	    item.setText("Generate slices from text");
 	    item.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -454,7 +454,7 @@ public class AnnotationShell {
 						System.out.println("No link betweek TreeItem and Track");
 						return;
 					}
-			    	t.addLemmas(t.getName());
+			    	t.addWords(t.getName());
 				}
 				updateTree();
 			}	    	
@@ -754,7 +754,7 @@ public class AnnotationShell {
 		    	String text=MainWindowShell.getTextFile(path);
 		    	if (text==null)
 		    		return;
-				annotation.addTextTrack(text);
+				annotation.addTrackText(text);
 				updateTree();
 			}	    	
 	    };
