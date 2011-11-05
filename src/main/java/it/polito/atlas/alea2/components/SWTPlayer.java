@@ -20,18 +20,35 @@ import org.gstreamer.swt.VideoComponent;
 
 public class SWTPlayer implements it.polito.atlas.alea2.Player {
 	
+	/**
+	 * The list of opened video(s) through the GStreamer library
+	 */
 	public List <PlayBin2> videos = new ArrayList<PlayBin2>();
+	
+	/**
+	 * The list of video windows
+	 */
 	public List <Shell> shells = new ArrayList<Shell>();
+	
+	/**
+	 * The List of VideoTracks
+	 */
 	public List <TrackVideo> tracks = new ArrayList<TrackVideo>();
+	
+	/**
+	 * The max length of video(s)
+	 */
 	long maxDuration=0;
+	
+	/**
+	 * The video(s) actual state
+	 */
 	State state;
 	
     /**
      * Returns a time String
-     * @param time
-     * The time in milliseconds
-     * @return
-     * The String representing the time
+     * @param time The time in milliseconds
+     * @return The String representing the time
      */
     static public String timeString(long time)
     {
@@ -53,15 +70,30 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
         return String.format("%02d:%02d.%03d", mins, secs, millisecs);
     }
 
+    /**
+     * Adds a video to this Player
+     * @param tv The TrackVideo to open
+     */
     public void addVideo(TrackVideo tv) {
     	createVideoWindow(tv.getName());
     	tracks.add(tv);
     }
 
+    /**
+     * Create and initialize a new window containing the video
+     * The video will be inserted at the last position of opened video list
+     * @param file The file path of video
+     */
     private void createVideoWindow(String file) {
     	createVideoWindow(file, -1);
     }
     
+    /**
+     * Create and initialize a new window containing the video
+     * The video will be inserted at the desired position inside the openedvideo list
+     * @param file The file path of video
+     * @param videodesiredindex
+     */
     private void createVideoWindow(String file, int videodesiredindex) {
 		PlayBin2 playbin;
 		Shell shell;
@@ -87,29 +119,32 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 
 				@Override
 				public void shellIconified(ShellEvent e) {
-					//pause();
 				}
 
 				@Override
 				public void shellDeiconified(ShellEvent e) {
-					//play();
 				}
 
 				@Override
 				public void shellDeactivated(ShellEvent e) {
 				}
 
+				/**
+				 * When dispose the video window dispose also the GStreamer player
+				 */
 				@Override
 				public void shellClosed(ShellEvent e) {
-					//int index=(Integer) ((Shell)e.getSource()).getData();
 					System.out.println("Closing #" + index);
 					PlayBin2 p = videos.get(index);
 					if (p != null) {
 						p.stop();
 						p.dispose();
+						// set this GStreamer player as closed
 						videos.set(index, null);
 					}
+					// Recalculate the max duration
 					queryEndTime();
+					// set this window as closed
 					shells.set(index, null);
 				}
 
@@ -124,9 +159,6 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 			final VideoComponent component = new VideoComponent(shell, SWT.NONE);
 			component.getElement().setName("Video #" + index);
 			component.setKeepAspect(true);
-			// shell.setSize(component.getSize());
-			// component.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-			// true));//GridData.FILL_BOTH));
 
 			playbin.setVideoSink(component.getElement());
 			playbin.pause();
@@ -145,6 +177,9 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 		}
 	}
 	
+    /**
+     * When dispose the Player dispose also all the linked video windows
+     */
 	@Override
 	public void dispose() {
 		for (Shell s : shells)
@@ -152,6 +187,9 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 				s.close();
 	}
 
+	/**
+	 * Get the max duration time of video(s) in milliseconds
+	 */
 	@Override
 	public long getEndTime() {
 		if (maxDuration==0)
@@ -160,6 +198,9 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 			return maxDuration;
 	}
 	
+	/**
+	 * Check the max duration time of video(s) in milliseconds
+	 */
 	public long queryEndTime() {
 		long duration;
 		for (PlayBin2 p : videos)
@@ -171,6 +212,9 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 		return maxDuration;
 	}
 
+	/**
+	 * Get the actual time position of video(s) in milliseconds
+	 */
 	@Override
 	public long getPosition() {
 		for (PlayBin2 p : videos) {
@@ -181,6 +225,9 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 		return 0;
 	}
 
+	/**
+	 * Open all video(s) windows
+	 */
 	@Override
 	public void open() {
 		for (Shell s : shells) {
@@ -189,17 +236,22 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 		}
 	}
 
+	/**
+	 * Open the video window by the parameter
+	 * @param tv The TrackVideo to open
+	 */
 	@Override
 	public void open(TrackVideo tv) {
 		int i=0;
 		boolean newTrack=true;
 		Shell s = null;
+		// Check if the video is already in list
 		for (TrackVideo t : tracks) {
 			if (t.equals(tv)) {
 				s = shells.get(i);
+				// Check if the Window was closed, create it
 				if (s == null)
 					createVideoWindow(tv.getName(), i);
-				s.open();
 				newTrack=false;
 				break;
 			}
@@ -212,6 +264,9 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 		seek(getPosition());
 	}
 
+	/**
+	 * Pause all video(s)
+	 */
 	@Override
 	public void pause() {
 		for (PlayBin2 p : videos)
@@ -220,6 +275,9 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 		state=State.PAUSED;
 	}
 
+	/**
+	 * Play all video(s)
+	 */
 	@Override
 	public void play() {
 		for (PlayBin2 p : videos) {
@@ -230,6 +288,9 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 		state=State.PLAYING;
 	}
 	
+	/**
+	 * Resync all video(s)
+	 */
 	public void resync() {
 		if (state==State.PLAYING) {
 			pause();
@@ -240,6 +301,10 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 		}
 	}
 	
+	/**
+	 * Seek all video(s) to the specified time position
+	 * @param position The time position in milliseconds
+	 */
 	@Override
 	public void seek(long position) {
 		for (PlayBin2 p : videos) {
@@ -249,6 +314,9 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 		}
 	}
 
+	/**
+	 * Stop all video(s)
+	 */
 	@Override
 	public void stop() {
 		for (PlayBin2 p : videos)
@@ -256,6 +324,9 @@ public class SWTPlayer implements it.polito.atlas.alea2.Player {
 				p.stop();
 	}
 
+	/**
+	 * Iconify all video(s) windows
+	 */
 	public void iconify(boolean b) {
 		for (Shell s : shells)
 			if (s != null)

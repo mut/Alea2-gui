@@ -6,15 +6,20 @@ package it.polito.atlas.alea2.initializer;
 public class MacPlatformInitializer extends Initializer {
 
 	/**
-	 * @uml.property  name="instance"
-	 * @uml.associationEnd  
+	 * Create the instance of this initializer
 	 */
 	private static MacPlatformInitializer instance = new MacPlatformInitializer();
 
+	/**
+	 * Returns the instance of this initializer
+	 */
 	public static Initializer macPlatformInizializer() {
 		return instance;
 	}
 
+	/**
+	 * Executes the initializer
+	 */
 	@Override
 	protected void doRun() {
 		final String jnaLibraryPath = System.getProperty("jna.library.path");
@@ -24,6 +29,9 @@ public class MacPlatformInitializer extends Initializer {
 		System.out.println("jna.library.path = " + newJnaLibraryPath);
 	}
 
+	/**
+	 * Check if this initializer is needed
+	 */
 	@Override
 	protected boolean isApplicable() {
 		return com.sun.jna.Platform.isMac();
